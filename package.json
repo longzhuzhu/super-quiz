@@ -1,0 +1,25 @@
+{
+  "name": "cipt-quiz-system",
+  "version": "2.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:api": "wrangler dev api-worker.js --local --port 8787",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "node --check app.js && node --check api-worker.js && node --check seed.mjs && node --check smoke-test.mjs",
+    "test": "node --experimental-sqlite smoke-test.mjs",
+    "seed:sql": "node seed.mjs",
+    "db:local:setup": "npm run seed:sql && wrangler d1 execute cipt-quiz --local --file=schema.sql && wrangler d1 execute cipt-quiz --local --file=seed.sql",
+    "db:remote:setup": "npm run seed:sql && wrangler d1 execute cipt-quiz --remote --file=schema.sql && wrangler d1 execute cipt-quiz --remote --file=seed.sql",
+    "deploy:api": "wrangler deploy api-worker.js"
+  },
+  "devDependencies": {
+    "vite": "^7.1.0",
+    "wrangler": "^4.129.1"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

@@ -1,0 +1,1179 @@
+[
+  {
+    "id": "q01",
+    "domain": "隐私基础",
+    "difficulty": "基础",
+    "source": "原创练习",
+    "en": "A mobile app asks for a home address even though an email address is sufficient to create an account. Which principle is most directly affected?",
+    "zh": "某移动应用创建账户时，邮箱已经足够，却仍要求填写家庭住址。最直接违反了哪项原则？",
+    "options": [
+      [
+        "Purpose limitation",
+        "目的限制"
+      ],
+      [
+        "Data minimization",
+        "数据最小化"
+      ],
+      [
+        "Storage limitation",
+        "存储限制"
+      ],
+      [
+        "Transparency",
+        "透明度"
+      ]
+    ],
+    "correct": 1,
+    "terms": [
+      "data minimization",
+      "purpose limitation"
+    ],
+    "clauses": [
+      [
+        "A mobile app asks for a home address",
+        "应用要求家庭住址"
+      ],
+      [
+        "even though an email address is sufficient",
+        "尽管邮箱已足够"
+      ],
+      [
+        "to create an account",
+        "目的：创建账户"
+      ]
+    ],
+    "signal": "even though 表示转折：已经“足够”却继续收集，是典型的数据最小化判断。",
+    "why": "数据最小化关注收集范围是否超出完成任务所必需的程度。家庭住址对该注册目的并非必要。",
+    "trap": "目的限制关注“拿数据做什么”；本题重点是“收了不必要的数据”，不是改变用途。",
+    "memory": "记忆：问“是否必须收” → 数据最小化；问“是否换用途” → 目的限制。"
+  },
+  {
+    "id": "q02",
+    "domain": "隐私工程",
+    "difficulty": "基础",
+    "source": "原创练习",
+    "en": "When should a product team perform privacy threat modeling to influence the architecture at the lowest cost?",
+    "zh": "产品团队应在何时开展隐私威胁建模，才能以最低成本影响系统架构？",
+    "options": [
+      [
+        "After a production incident",
+        "生产事故之后"
+      ],
+      [
+        "During early design",
+        "早期设计阶段"
+      ],
+      [
+        "Only before an audit",
+        "仅在审计之前"
+      ],
+      [
+        "After data deletion",
+        "数据删除之后"
+      ]
+    ],
+    "correct": 1,
+    "terms": [
+      "threat modeling",
+      "privacy by design"
+    ],
+    "clauses": [
+      [
+        "When should a product team perform privacy threat modeling",
+        "何时开展隐私威胁建模"
+      ],
+      [
+        "to influence the architecture",
+        "目的：影响架构"
+      ],
+      [
+        "at the lowest cost",
+        "条件：成本最低"
+      ]
+    ],
+    "signal": "看到 influence the architecture 与 lowest cost，应想到设计越早，修改成本越低。",
+    "why": "在需求和架构尚未固化时识别数据流、攻击面与滥用场景，最容易改变设计并避免返工。",
+    "trap": "事故后和审计前属于被动控制，无法低成本地影响早期架构决策。",
+    "memory": "Privacy by Design 不是上线前检查表，而是设计输入。"
+  },
+  {
+    "id": "q03",
+    "domain": "去标识化",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "A dataset satisfies k-anonymity but every record in one equivalence class has the same diagnosis. What risk remains?",
+    "zh": "某数据集满足 k-匿名，但一个等价类中的所有记录具有相同诊断结果。仍然存在什么风险？",
+    "options": [
+      [
+        "Transport interception",
+        "传输拦截"
+      ],
+      [
+        "Attribute disclosure",
+        "属性泄露"
+      ],
+      [
+        "Key exhaustion",
+        "密钥耗尽"
+      ],
+      [
+        "Session fixation",
+        "会话固定"
+      ]
+    ],
+    "correct": 1,
+    "terms": [
+      "k-anonymity",
+      "linkage attack"
+    ],
+    "clauses": [
+      [
+        "A dataset satisfies k-anonymity",
+        "数据集满足 k-匿名"
+      ],
+      [
+        "but every record in one equivalence class",
+        "但同一等价类中的每条记录"
+      ],
+      [
+        "has the same diagnosis",
+        "诊断属性完全相同"
+      ]
+    ],
+    "signal": "but 后面才是考点：身份可能被隐藏，但敏感属性仍可被推断。",
+    "why": "k-匿名只保证准标识符组合中至少有 k 个候选人；如果敏感属性没有多样性，攻击者仍能推断该属性。",
+    "trap": "这不是传输安全或会话问题，而是发布后由数据分布导致的属性披露。",
+    "memory": "k-匿名保护“你是哪一行”，不一定保护“这一组人的敏感值是什么”。"
+  },
+  {
+    "id": "q04",
+    "domain": "隐私增强技术",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "In a differential privacy system, what should be monitored when analysts repeatedly query the same dataset?",
+    "zh": "在差分隐私系统中，当分析人员反复查询同一数据集时，最应监控什么？",
+    "options": [
+      [
+        "Screen resolution",
+        "屏幕分辨率"
+      ],
+      [
+        "Privacy budget consumption",
+        "隐私预算消耗"
+      ],
+      [
+        "Password length",
+        "密码长度"
+      ],
+      [
+        "Network latency",
+        "网络延迟"
+      ]
+    ],
+    "correct": 1,
+    "terms": [
+      "differential privacy",
+      "privacy budget"
+    ],
+    "clauses": [
+      [
+        "In a differential privacy system",
+        "场景：差分隐私系统"
+      ],
+      [
+        "when analysts repeatedly query",
+        "条件：分析人员反复查询"
+      ],
+      [
+        "the same dataset",
+        "对象：同一数据集"
+      ]
+    ],
+    "signal": "repeatedly 是关键词：多次查询会产生组合效应并累计隐私损失。",
+    "why": "每次查询都会消耗一部分隐私预算；不限制累计查询可能削弱单个记录获得的保护。",
+    "trap": "密码与网络指标虽重要，但不直接衡量差分隐私查询的累计风险。",
+    "memory": "差分隐私不是“加一次噪声就永久安全”，查询次数也要治理。"
+  },
+  {
+    "id": "q05",
+    "domain": "数据保护",
+    "difficulty": "基础",
+    "source": "原创练习",
+    "en": "A company replaces customer IDs with random tokens and stores the mapping in a separate secured vault. Which technique is being used?",
+    "zh": "公司用随机令牌替换客户 ID，并将映射关系存入独立的安全库。这使用了哪项技术？",
+    "options": [
+      [
+        "Tokenization",
+        "令牌化"
+      ],
+      [
+        "Anonymization",
+        "匿名化"
+      ],
+      [
+        "Data masking for display",
+        "展示脱敏"
+      ],
+      [
+        "Differential privacy",
+        "差分隐私"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "tokenization",
+      "pseudonymization"
+    ],
+    "clauses": [
+      [
+        "replaces customer IDs with random tokens",
+        "用随机令牌替换客户 ID"
+      ],
+      [
+        "and stores the mapping",
+        "并保存映射关系"
+      ],
+      [
+        "in a separate secured vault",
+        "位置：独立安全库"
+      ]
+    ],
+    "signal": "mapping 是决定性线索：存在受控映射表，通常属于令牌化或假名化，而非匿名化。",
+    "why": "令牌化以无业务含义的令牌代替原值，并通过受保护的映射库支持必要时还原。",
+    "trap": "匿名化要求合理不可识别；保留映射意味着仍可能重新关联个人。",
+    "memory": "有映射表 → 可回指 → 不是匿名化。"
+  },
+  {
+    "id": "q06",
+    "domain": "数据保护",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "Which design most reduces the impact if an encrypted database is copied by an attacker?",
+    "zh": "如果加密数据库被攻击者复制，哪种设计最能降低事件影响？",
+    "options": [
+      [
+        "Store the key beside the database",
+        "将密钥与数据库放在一起"
+      ],
+      [
+        "Use one permanent key for all systems",
+        "所有系统共用一个永久密钥"
+      ],
+      [
+        "Separate and rotate access-controlled keys",
+        "分离并轮换受控密钥"
+      ],
+      [
+        "Rename sensitive columns",
+        "重命名敏感字段"
+      ]
+    ],
+    "correct": 2,
+    "terms": [
+      "encryption at rest",
+      "key management"
+    ],
+    "clauses": [
+      [
+        "Which design most reduces the impact",
+        "哪种设计最能降低影响"
+      ],
+      [
+        "if an encrypted database is copied",
+        "条件：加密数据库被复制"
+      ],
+      [
+        "by an attacker",
+        "主体：攻击者"
+      ]
+    ],
+    "signal": "encrypted database 已经给出加密；真正区分选项的是密钥是否与密文隔离并可撤销。",
+    "why": "密钥与密文分离、限制密钥访问并定期轮换，可避免“拿到数据库就同时拿到解密能力”。",
+    "trap": "永久共享密钥扩大爆炸半径；重命名字段不构成密码学保护。",
+    "memory": "加密强度不仅看算法，还看密钥生命周期与隔离。"
+  },
+  {
+    "id": "q07",
+    "domain": "身份与访问",
+    "difficulty": "基础",
+    "source": "原创练习",
+    "en": "A support agent only needs to view the last four digits of an account number. Which control best follows least privilege?",
+    "zh": "客服只需要查看账号后四位。哪项控制最符合最小权限原则？",
+    "options": [
+      [
+        "Give full database read access",
+        "授予整个数据库只读权限"
+      ],
+      [
+        "Show a masked value through a restricted view",
+        "通过受限视图显示掩码值"
+      ],
+      [
+        "Share an administrator account",
+        "共享管理员账号"
+      ],
+      [
+        "Export the table weekly",
+        "每周导出整张表"
+      ]
+    ],
+    "correct": 1,
+    "terms": [
+      "least privilege",
+      "role-based access control"
+    ],
+    "clauses": [
+      [
+        "A support agent only needs",
+        "客服仅需要"
+      ],
+      [
+        "to view the last four digits",
+        "查看后四位"
+      ],
+      [
+        "Which control best follows least privilege",
+        "问：最符合最小权限的控制"
+      ]
+    ],
+    "signal": "only needs 与 last four digits 明确给出了最小任务范围。",
+    "why": "受限视图既满足核验需求，又不暴露完整号码或无关字段。",
+    "trap": "只读不等于最小权限；读取整库仍超出岗位需要。",
+    "memory": "最小权限同时限制“能看什么”和“能做什么”。"
+  },
+  {
+    "id": "q08",
+    "domain": "数据生命周期",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "A deletion workflow removes a profile from the main database but leaves searchable copies in logs and caches. What is the main weakness?",
+    "zh": "删除流程从主数据库移除了个人资料，但日志和缓存中的副本仍可搜索。主要缺陷是什么？",
+    "options": [
+      [
+        "Incomplete lifecycle coverage",
+        "生命周期覆盖不完整"
+      ],
+      [
+        "Weak screen authentication",
+        "屏幕认证薄弱"
+      ],
+      [
+        "Insufficient bandwidth",
+        "带宽不足"
+      ],
+      [
+        "Incorrect localization",
+        "本地化错误"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "retention",
+      "data provenance"
+    ],
+    "clauses": [
+      [
+        "removes a profile from the main database",
+        "从主库删除资料"
+      ],
+      [
+        "but leaves searchable copies",
+        "但留下可搜索副本"
+      ],
+      [
+        "in logs and caches",
+        "位置：日志与缓存"
+      ]
+    ],
+    "signal": "but 表示删除只完成了一部分；要沿数据血缘检查所有副本与派生物。",
+    "why": "有效删除需要覆盖主库、索引、缓存、日志和可适用的备份策略，而不是只删除一个记录位置。",
+    "trap": "题目讨论的是数据副本管理，不是认证、网络或语言设置。",
+    "memory": "删除是一条数据流上的流程，不是一条 SQL。"
+  },
+  {
+    "id": "q09",
+    "domain": "在线隐私",
+    "difficulty": "基础",
+    "source": "原创练习",
+    "en": "A tracking domain recognizes a user across several unrelated websites. Which mechanism most directly enables this behavior?",
+    "zh": "某追踪域能够在多个互不相关的网站间识别同一用户。哪种机制最直接实现这种行为？",
+    "options": [
+      [
+        "A first-party session cookie",
+        "第一方会话 Cookie"
+      ],
+      [
+        "A third-party cookie",
+        "第三方 Cookie"
+      ],
+      [
+        "A local page title",
+        "本地页面标题"
+      ],
+      [
+        "A DNS cache entry",
+        "DNS 缓存条目"
+      ]
+    ],
+    "correct": 1,
+    "terms": [
+      "third-party cookie",
+      "browser fingerprinting"
+    ],
+    "clauses": [
+      [
+        "A tracking domain recognizes a user",
+        "追踪域识别用户"
+      ],
+      [
+        "across several unrelated websites",
+        "范围：多个不相关网站"
+      ],
+      [
+        "Which mechanism most directly enables",
+        "问：最直接的机制"
+      ]
+    ],
+    "signal": "across unrelated websites 指向跨站追踪，优先考虑第三方上下文。",
+    "why": "当多个网站嵌入同一第三方资源时，该第三方可读写其 Cookie 并关联跨站活动。",
+    "trap": "第一方会话 Cookie 通常局限于当前站点；浏览器指纹也可跨站，但题目问最直接的经典机制。",
+    "memory": "first-party 看当前站；third-party 能跨多个嵌入站点关联。"
+  },
+  {
+    "id": "q10",
+    "domain": "在线隐私",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "Blocking cookies does not fully prevent a site from recognizing returning devices. Which remaining technique should be assessed?",
+    "zh": "阻止 Cookie 并不能完全防止网站识别再次访问的设备。还应评估哪项技术？",
+    "options": [
+      [
+        "Browser fingerprinting",
+        "浏览器指纹"
+      ],
+      [
+        "Database normalization",
+        "数据库规范化"
+      ],
+      [
+        "Code minification",
+        "代码压缩"
+      ],
+      [
+        "Load balancing",
+        "负载均衡"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "browser fingerprinting",
+      "third-party cookie"
+    ],
+    "clauses": [
+      [
+        "Blocking cookies does not fully prevent",
+        "阻止 Cookie 并不能完全防止"
+      ],
+      [
+        "a site from recognizing returning devices",
+        "网站识别再次访问的设备"
+      ],
+      [
+        "Which remaining technique",
+        "问：仍可能使用的技术"
+      ]
+    ],
+    "signal": "without cookies + recognize devices 是浏览器指纹的典型表述。",
+    "why": "浏览器指纹可组合字体、屏幕、语言、渲染与硬件等特征，在没有传统 Cookie 时形成高熵标识。",
+    "trap": "规范化、代码压缩和负载均衡不以跨会话识别设备为目标。",
+    "memory": "没有 Cookie ≠ 没有追踪；高熵设备特征也能形成标识。"
+  },
+  {
+    "id": "q11",
+    "domain": "用户体验",
+    "difficulty": "基础",
+    "source": "原创练习",
+    "en": "Which notice design is most helpful on a small screen while still supporting informed choices?",
+    "zh": "在小屏幕上，哪种告知设计最有助于用户作出知情选择？",
+    "options": [
+      [
+        "One long legal document",
+        "一份很长的法律文件"
+      ],
+      [
+        "A layered notice with key facts first",
+        "先展示关键信息的分层告知"
+      ],
+      [
+        "No notice until after collection",
+        "收集后再告知"
+      ],
+      [
+        "A preselected consent box",
+        "预先勾选的同意框"
+      ]
+    ],
+    "correct": 1,
+    "terms": [
+      "layered notice",
+      "dark pattern"
+    ],
+    "clauses": [
+      [
+        "Which notice design is most helpful",
+        "哪种告知最有帮助"
+      ],
+      [
+        "on a small screen",
+        "场景：小屏幕"
+      ],
+      [
+        "while still supporting informed choices",
+        "同时支持知情选择"
+      ]
+    ],
+    "signal": "small screen 要求优先级清晰；informed choices 要求关键内容不能被隐藏。",
+    "why": "分层告知先呈现目的、数据类别和关键选择，再提供详细信息，兼顾可读性和完整性。",
+    "trap": "篇幅长不等于更透明；预选和延迟告知都会削弱真实选择。",
+    "memory": "第一层回答“收什么、为什么、我能做什么”，细节放下一层。"
+  },
+  {
+    "id": "q12",
+    "domain": "用户体验",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "A consent screen makes “Accept all” bright and immediate but requires five steps to reject. What is the primary concern?",
+    "zh": "同意页面把“全部接受”设计得醒目且一步完成，而拒绝需要五步。首要问题是什么？",
+    "options": [
+      [
+        "A dark pattern",
+        "诱导式设计"
+      ],
+      [
+        "Weak encryption",
+        "加密薄弱"
+      ],
+      [
+        "Data deduplication",
+        "数据去重"
+      ],
+      [
+        "Poor availability",
+        "可用性不足"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "dark pattern",
+      "layered notice"
+    ],
+    "clauses": [
+      [
+        "makes Accept all bright and immediate",
+        "让全部接受醒目且一步完成"
+      ],
+      [
+        "but requires five steps to reject",
+        "但拒绝需要五步"
+      ],
+      [
+        "What is the primary concern",
+        "问：首要问题"
+      ]
+    ],
+    "signal": "接受与拒绝的交互成本明显不对称，说明界面在推动特定选择。",
+    "why": "通过视觉权重和操作摩擦影响选择，可能使用户作出并非自由、对称或充分知情的决定。",
+    "trap": "这属于交互与选择架构问题，并非密码学或系统可用性问题。",
+    "memory": "判断同意界面：看信息是否对称，拒绝是否同样容易。"
+  },
+  {
+    "id": "q13",
+    "domain": "隐私设计",
+    "difficulty": "基础",
+    "source": "原创练习",
+    "en": "A new social profile is visible only to approved contacts unless the user changes the setting. Which principle does this demonstrate?",
+    "zh": "新的社交资料默认仅对已批准联系人可见，除非用户主动更改设置。这体现了哪项原则？",
+    "options": [
+      [
+        "Privacy by default",
+        "默认隐私"
+      ],
+      [
+        "Open data",
+        "开放数据"
+      ],
+      [
+        "Maximum collection",
+        "最大化收集"
+      ],
+      [
+        "Shared credentials",
+        "共享凭据"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "privacy by default",
+      "privacy by design"
+    ],
+    "clauses": [
+      [
+        "A new social profile is visible only",
+        "新资料仅可见"
+      ],
+      [
+        "to approved contacts",
+        "对象：已批准联系人"
+      ],
+      [
+        "unless the user changes the setting",
+        "除非用户主动修改"
+      ]
+    ],
+    "signal": "unless the user changes 指向“未操作时的默认状态”。",
+    "why": "默认隐私要求系统在用户不采取额外行动时也提供较强保护，之后可由用户有意识地调整。",
+    "trap": "Privacy by Design 范围更广；题目特指默认配置，因此应选 Privacy by Default。",
+    "memory": "看见 default / unless changed，先判断 Privacy by Default。"
+  },
+  {
+    "id": "q14",
+    "domain": "数据治理",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "Before automating access requests, which artifact is most useful for locating personal data across systems and downstream copies?",
+    "zh": "在自动化数据访问请求前，哪项资料最有助于定位跨系统的个人数据及其下游副本？",
+    "options": [
+      [
+        "A data inventory and flow map",
+        "数据清单与流向图"
+      ],
+      [
+        "A color style guide",
+        "颜色规范"
+      ],
+      [
+        "A network speed test",
+        "网络测速结果"
+      ],
+      [
+        "A release calendar",
+        "发布日历"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "data inventory",
+      "data provenance"
+    ],
+    "clauses": [
+      [
+        "Before automating access requests",
+        "在自动化访问请求前"
+      ],
+      [
+        "which artifact is most useful",
+        "哪项资料最有用"
+      ],
+      [
+        "for locating personal data across systems and downstream copies",
+        "目的：定位跨系统与下游副本"
+      ]
+    ],
+    "signal": "locating + across systems + downstream 指向数据清单、流向与血缘。",
+    "why": "只有先知道数据位于何处、为何处理、如何流动，自动化请求才可能覆盖源系统和派生副本。",
+    "trap": "发布日历与技术性能资料无法回答个人数据位置和流向问题。",
+    "memory": "不能回答“数据在哪里”，就无法可靠完成访问、删除和更正。"
+  },
+  {
+    "id": "q15",
+    "domain": "隐私增强技术",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "Two companies want to calculate the size of their shared customer group without revealing their full customer lists. Which approach best fits?",
+    "zh": "两家公司希望计算共同客户群规模，但不透露各自完整客户名单。哪种方法最合适？",
+    "options": [
+      [
+        "Secure multiparty computation",
+        "安全多方计算"
+      ],
+      [
+        "Public file sharing",
+        "公开文件共享"
+      ],
+      [
+        "Plaintext replication",
+        "明文复制"
+      ],
+      [
+        "Screen recording",
+        "屏幕录制"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "secure multiparty computation",
+      "privacy-enhancing technology"
+    ],
+    "clauses": [
+      [
+        "Two companies want to calculate",
+        "两家公司希望计算"
+      ],
+      [
+        "the size of their shared customer group",
+        "共同客户群规模"
+      ],
+      [
+        "without revealing their full customer lists",
+        "限制：不公开完整名单"
+      ]
+    ],
+    "signal": "共同计算 + 各方输入不公开，是安全多方计算的核心使用场景。",
+    "why": "安全多方计算允许参与方在不暴露各自输入的情况下得到约定函数的结果。",
+    "trap": "直接共享或复制明文会暴露超出结果所需的信息。",
+    "memory": "MPC：公开结果，不公开各方原始输入。"
+  },
+  {
+    "id": "q16",
+    "domain": "隐私增强技术",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "A cloud service performs an approved calculation on encrypted values without first decrypting them. Which technology enables this?",
+    "zh": "云服务无需先解密，就能对加密值执行获准的计算。这依赖哪项技术？",
+    "options": [
+      [
+        "Homomorphic encryption",
+        "同态加密"
+      ],
+      [
+        "Plain hashing",
+        "普通哈希"
+      ],
+      [
+        "Role naming",
+        "角色命名"
+      ],
+      [
+        "Cookie partitioning",
+        "Cookie 分区"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "homomorphic encryption",
+      "encryption at rest"
+    ],
+    "clauses": [
+      [
+        "performs an approved calculation",
+        "执行获准计算"
+      ],
+      [
+        "on encrypted values",
+        "对象：加密值"
+      ],
+      [
+        "without first decrypting them",
+        "条件：无需先解密"
+      ]
+    ],
+    "signal": "calculate on encrypted values 是同态加密最典型的定义线索。",
+    "why": "同态加密允许对密文执行特定运算，解密运算结果后可得到对应的明文计算结果。",
+    "trap": "普通哈希不可逆且不支持一般意义上的密文计算；静态加密通常使用前需要解密。",
+    "memory": "密文上直接算 → Homomorphic Encryption。"
+  },
+  {
+    "id": "q17",
+    "domain": "机器学习隐私",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "Federated learning keeps raw training data on devices, but individual model updates may still reveal information. Which added control best addresses this?",
+    "zh": "联邦学习把原始训练数据留在设备端，但单个模型更新仍可能泄露信息。哪项附加控制最合适？",
+    "options": [
+      [
+        "Secure aggregation",
+        "安全聚合"
+      ],
+      [
+        "Larger screen fonts",
+        "增大屏幕字体"
+      ],
+      [
+        "Permanent device IDs",
+        "永久设备 ID"
+      ],
+      [
+        "Public debug logs",
+        "公开调试日志"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "federated learning",
+      "secure aggregation"
+    ],
+    "clauses": [
+      [
+        "Federated learning keeps raw training data on devices",
+        "联邦学习让原始训练数据留在设备"
+      ],
+      [
+        "but individual model updates may still reveal information",
+        "但单个模型更新仍可能泄露"
+      ],
+      [
+        "Which added control best addresses this",
+        "问：哪项附加控制"
+      ]
+    ],
+    "signal": "but 提醒你：数据不离端不代表更新本身没有泄露风险。",
+    "why": "安全聚合使协调方只看到多个参与者更新的组合结果，降低观察单个更新的风险。",
+    "trap": "永久设备 ID 会增加可链接性；公开日志会进一步扩大暴露。",
+    "memory": "联邦学习解决“数据在哪里训练”，安全聚合解决“谁能看到单个更新”。"
+  },
+  {
+    "id": "q18",
+    "domain": "隐私工程",
+    "difficulty": "基础",
+    "source": "原创练习",
+    "en": "A crash report currently includes the complete contents of a user's text field. What is the best privacy-focused redesign?",
+    "zh": "崩溃报告目前包含用户文本框的完整内容。最符合隐私要求的重新设计是什么？",
+    "options": [
+      [
+        "Collect only the error code and necessary context",
+        "仅收集错误码与必要上下文"
+      ],
+      [
+        "Keep all text forever",
+        "永久保留全部文本"
+      ],
+      [
+        "Send the report to more teams",
+        "将报告发送给更多团队"
+      ],
+      [
+        "Add the text to the filename",
+        "把文本加入文件名"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "telemetry",
+      "data minimization"
+    ],
+    "clauses": [
+      [
+        "A crash report currently includes",
+        "崩溃报告目前包含"
+      ],
+      [
+        "the complete contents of a user's text field",
+        "用户文本框的完整内容"
+      ],
+      [
+        "best privacy-focused redesign",
+        "问：最符合隐私的重新设计"
+      ]
+    ],
+    "signal": "complete contents 通常超出诊断所需，应先质疑采集粒度。",
+    "why": "错误码、堆栈和最少必要环境信息往往足以诊断问题，无需采集可能包含敏感内容的完整输入。",
+    "trap": "扩大共享和延长保留都会增加暴露面，改变文件名也不会减少数据。",
+    "memory": "遥测先问：这个字段真的能帮助定位故障吗？"
+  },
+  {
+    "id": "q19",
+    "domain": "隐私工程",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "Which automated check is most useful for preventing a mobile release from silently adding a new sensitive permission?",
+    "zh": "哪种自动化检查最有助于防止移动应用发布时悄悄增加新的敏感权限？",
+    "options": [
+      [
+        "Compare permission manifests in CI",
+        "在 CI 中比较权限清单"
+      ],
+      [
+        "Change the app icon",
+        "更换应用图标"
+      ],
+      [
+        "Increase animation speed",
+        "提高动画速度"
+      ],
+      [
+        "Compress screenshots",
+        "压缩截图"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "privacy by design",
+      "data minimization"
+    ],
+    "clauses": [
+      [
+        "Which automated check is most useful",
+        "哪项自动检查最有用"
+      ],
+      [
+        "for preventing a mobile release",
+        "目标：防止移动版本发布"
+      ],
+      [
+        "from silently adding a new sensitive permission",
+        "事件：静默新增敏感权限"
+      ]
+    ],
+    "signal": "automated + release 指向持续集成门禁；permission manifest 是可机器比较的证据。",
+    "why": "在 CI 中把权限清单与批准基线比较，可在合并或发布前发现新增敏感能力并触发评审。",
+    "trap": "界面和资源优化不会检测权限变化。",
+    "memory": "把隐私要求变成可自动失败的发布门禁。"
+  },
+  {
+    "id": "q20",
+    "domain": "身份与访问",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "An administrator investigates unusual bulk access to customer records. Which evidence is most useful?",
+    "zh": "管理员调查对客户记录的异常批量访问。哪类证据最有用？",
+    "options": [
+      [
+        "Tamper-resistant access logs",
+        "防篡改访问日志"
+      ],
+      [
+        "A marketing slogan",
+        "营销口号"
+      ],
+      [
+        "The office seating plan",
+        "办公室座位图"
+      ],
+      [
+        "A generic error page",
+        "通用错误页"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "access log",
+      "least privilege"
+    ],
+    "clauses": [
+      [
+        "An administrator investigates",
+        "管理员正在调查"
+      ],
+      [
+        "unusual bulk access",
+        "异常批量访问"
+      ],
+      [
+        "to customer records",
+        "对象：客户记录"
+      ]
+    ],
+    "signal": "investigates 要求可追溯证据，核心问题是 who / when / what / action。",
+    "why": "可靠的访问日志能关联主体、时间、对象、操作和结果，并应防止被被调查主体轻易修改。",
+    "trap": "一般错误信息缺少可归因的事件细节，无法重建访问路径。",
+    "memory": "审计日志要能回答：谁、何时、对什么、做了什么、结果如何。"
+  },
+  {
+    "id": "q21",
+    "domain": "去标识化",
+    "difficulty": "基础",
+    "source": "原创练习",
+    "en": "Why is replacing names with stable customer numbers usually not sufficient to claim that a dataset is anonymous?",
+    "zh": "为什么仅用稳定客户编号替换姓名，通常不足以宣称数据集已经匿名？",
+    "options": [
+      [
+        "The numbers may remain linkable to people",
+        "编号仍可能与个人关联"
+      ],
+      [
+        "Numbers cannot be stored",
+        "数字无法存储"
+      ],
+      [
+        "Anonymous data must be printed",
+        "匿名数据必须打印"
+      ],
+      [
+        "Encryption forbids identifiers",
+        "加密禁止使用标识符"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "pseudonymization",
+      "anonymization",
+      "linkage attack"
+    ],
+    "clauses": [
+      [
+        "replacing names with stable customer numbers",
+        "用稳定客户编号替换姓名"
+      ],
+      [
+        "usually not sufficient",
+        "通常并不足够"
+      ],
+      [
+        "to claim that a dataset is anonymous",
+        "目标：宣称数据匿名"
+      ]
+    ],
+    "signal": "stable numbers 表示可持续链接；若存在映射或外部数据，仍可能回到个人。",
+    "why": "稳定编号通常只是直接标识符的替代物，仍支持跨记录关联，也可能通过映射表或其他数据重识别。",
+    "trap": "匿名与存储介质无关；使用标识符也不由加密技术一概禁止。",
+    "memory": "去掉姓名只是第一步；可链接性与可重识别性才是关键。"
+  },
+  {
+    "id": "q22",
+    "domain": "数据生命周期",
+    "difficulty": "基础",
+    "source": "原创练习",
+    "en": "Which rule is most appropriate for diagnostic logs that contain user identifiers?",
+    "zh": "对于包含用户标识符的诊断日志，哪项规则最合适？",
+    "options": [
+      [
+        "Keep them indefinitely by default",
+        "默认永久保留"
+      ],
+      [
+        "Define a justified retention period and deletion process",
+        "定义合理保留期限和删除流程"
+      ],
+      [
+        "Allow unrestricted employee access",
+        "允许员工无限制访问"
+      ],
+      [
+        "Copy them to personal devices",
+        "复制到个人设备"
+      ]
+    ],
+    "correct": 1,
+    "terms": [
+      "retention",
+      "access log"
+    ],
+    "clauses": [
+      [
+        "Which rule is most appropriate",
+        "哪项规则最合适"
+      ],
+      [
+        "for diagnostic logs",
+        "对象：诊断日志"
+      ],
+      [
+        "that contain user identifiers",
+        "特点：含用户标识符"
+      ]
+    ],
+    "signal": "日志也是个人数据载体；不能因为用于诊断就跳过期限和访问控制。",
+    "why": "保留时间应与诊断、安全、法律等明确需求相匹配，到期后通过可验证流程删除。",
+    "trap": "永久保存和无限制访问都会放大数据暴露窗口。",
+    "memory": "日志不是隐私治理的例外。"
+  },
+  {
+    "id": "q23",
+    "domain": "隐私设计",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "An IoT device can detect a wake word locally but currently streams continuous room audio to the cloud. Which change most reduces privacy risk?",
+    "zh": "某 IoT 设备可以在本地检测唤醒词，却持续把房间音频传到云端。哪项改动最能降低隐私风险？",
+    "options": [
+      [
+        "Process locally and transmit only after activation",
+        "本地处理，仅激活后传输"
+      ],
+      [
+        "Use a brighter status light only",
+        "只使用更亮的状态灯"
+      ],
+      [
+        "Store every recording longer",
+        "延长所有录音保存时间"
+      ],
+      [
+        "Add more cloud replicas",
+        "增加云端副本"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "privacy by design",
+      "data minimization"
+    ],
+    "clauses": [
+      [
+        "can detect a wake word locally",
+        "能够本地检测唤醒词"
+      ],
+      [
+        "but currently streams continuous room audio",
+        "但当前持续传输房间音频"
+      ],
+      [
+        "Which change most reduces privacy risk",
+        "问：最能降低风险的改动"
+      ]
+    ],
+    "signal": "locally 能完成第一步，就没有必要把激活前的全部原始音频送到云端。",
+    "why": "本地检测减少了采集、传输和云端暴露的数据量，仅在明确激活后处理必要片段。",
+    "trap": "指示灯改善透明度但不减少持续采集；延长保留和增加副本会扩大风险。",
+    "memory": "能在端侧完成，就先避免把原始数据送出设备。"
+  },
+  {
+    "id": "q24",
+    "domain": "数据治理",
+    "difficulty": "进阶",
+    "source": "原创练习",
+    "en": "A team wants to reuse location data collected for navigation to build unrelated advertising profiles. What should be evaluated first?",
+    "zh": "团队想把为导航而收集的位置数据用于建立无关的广告画像。首先应评估什么？",
+    "options": [
+      [
+        "Whether the new use is compatible with the stated purpose",
+        "新用途是否与已声明目的相容"
+      ],
+      [
+        "Whether the logo needs redesign",
+        "是否需要重做标志"
+      ],
+      [
+        "Whether the database has spare disk space",
+        "数据库是否有剩余空间"
+      ],
+      [
+        "Whether ads load faster",
+        "广告是否加载更快"
+      ]
+    ],
+    "correct": 0,
+    "terms": [
+      "purpose limitation",
+      "data inventory"
+    ],
+    "clauses": [
+      [
+        "reuse location data",
+        "重新使用位置数据"
+      ],
+      [
+        "collected for navigation",
+        "原收集目的：导航"
+      ],
+      [
+        "to build unrelated advertising profiles",
+        "新目的：无关广告画像"
+      ]
+    ],
+    "signal": "for navigation 与 unrelated advertising 构成目的变化。",
+    "why": "在复用数据前，应判断新用途与原始告知和收集目的是否相容，并评估所需的法律与产品控制。",
+    "trap": "技术容量和商业性能不能替代对目的相容性的判断。",
+    "memory": "同一份数据换用途，先过 Purpose Limitation。"
+  }
+]
