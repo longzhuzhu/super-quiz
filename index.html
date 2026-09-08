@@ -1,0 +1,1379 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="CIPT 中英双语刷题与术语学习工具，单文件、离线可用。">
+  <title>CIPT Quiz System V1</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --panel: #0d1b2d;
+      --panel-2: #12243a;
+      --panel-3: #172d47;
+      --line: #263d58;
+      --line-soft: rgba(143, 173, 204, .15);
+      --text: #f3f7fb;
+      --muted: #98abc0;
+      --cyan: #53d7ff;
+      --cyan-soft: rgba(83, 215, 255, .13);
+      --lime: #b8f36b;
+      --lime-soft: rgba(184, 243, 107, .13);
+      --amber: #ffcb66;
+      --amber-soft: rgba(255, 203, 102, .13);
+      --red: #ff7b83;
+      --red-soft: rgba(255, 123, 131, .13);
+      --shadow: 0 22px 70px rgba(0, 0, 0, .25);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 78% 4%, rgba(83, 215, 255, .09), transparent 24rem),
+        linear-gradient(180deg, #07111f 0%, #091525 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    button, select, input, textarea { font: inherit; }
+    button, select { -webkit-tap-highlight-color: transparent; }
+    button { color: inherit; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid rgba(83, 215, 255, .75); outline-offset: 3px; }
+
+    .skip-link {
+      position: fixed;
+      z-index: 200;
+      top: 10px;
+      left: 10px;
+      transform: translateY(-150%);
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--cyan);
+      color: #04101a;
+      font-weight: 800;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 252px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 26px 18px 18px;
+      border-right: 1px solid var(--line-soft);
+      background: rgba(6, 15, 27, .86);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px 24px;
+    }
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid rgba(83, 215, 255, .45);
+      border-radius: 13px;
+      background: linear-gradient(145deg, rgba(83, 215, 255, .22), rgba(184, 243, 107, .08));
+      box-shadow: inset 0 0 24px rgba(83, 215, 255, .08);
+      color: var(--cyan);
+      font-weight: 900;
+      letter-spacing: -.08em;
+    }
+    .brand-name { font-weight: 850; letter-spacing: -.02em; line-height: 1.15; }
+    .brand-version { color: var(--muted); font-size: .78rem; }
+
+    .nav-list { display: grid; gap: 7px; }
+    .nav-button {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 12px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      text-align: left;
+      transition: .18s ease;
+    }
+    .nav-button:hover { color: var(--text); background: rgba(255,255,255,.035); }
+    .nav-button[aria-selected="true"] {
+      border-color: rgba(83, 215, 255, .22);
+      background: var(--cyan-soft);
+      color: var(--text);
+    }
+    .nav-icon { width: 22px; text-align: center; color: var(--cyan); }
+    .nav-count {
+      margin-left: auto;
+      min-width: 25px;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: var(--panel-3);
+      color: var(--muted);
+      font-size: .75rem;
+      text-align: center;
+    }
+
+    .sidebar-note {
+      margin-top: auto;
+      padding: 14px;
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      background: rgba(255,255,255,.025);
+      color: var(--muted);
+      font-size: .8rem;
+    }
+    .sidebar-note strong { display: block; margin-bottom: 3px; color: var(--lime); font-size: .82rem; }
+
+    .workspace { min-width: 0; padding: 0 34px 48px; }
+    .topbar {
+      position: sticky;
+      z-index: 30;
+      top: 0;
+      display: flex;
+      min-height: 76px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid var(--line-soft);
+      background: rgba(7, 17, 31, .82);
+      backdrop-filter: blur(18px);
+    }
+    .page-heading h1 { margin: 0; font-size: 1.04rem; letter-spacing: -.01em; }
+    .page-heading p { margin: 1px 0 0; color: var(--muted); font-size: .78rem; }
+    .top-actions { display: flex; align-items: center; gap: 9px; }
+
+    .status-pill, .tag, .kbd-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.025);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .status-pill { padding: 6px 10px; font-size: .75rem; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 12px var(--lime); }
+    .kbd-chip { padding: 3px 8px; font-size: .72rem; }
+
+    .view { display: none; max-width: 1320px; margin: 0 auto; padding-top: 28px; }
+    .view.active { display: block; animation: enter .22s ease both; }
+    @keyframes enter { from { opacity: 0; transform: translateY(5px); } }
+
+    .study-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 302px;
+      gap: 22px;
+      align-items: start;
+    }
+    .main-column, .side-column { display: grid; gap: 18px; min-width: 0; }
+    .panel {
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(18, 36, 58, .9), rgba(11, 26, 43, .94));
+      box-shadow: var(--shadow);
+    }
+
+    .session-strip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 16px;
+      border: 1px solid var(--line-soft);
+      border-radius: 15px;
+      background: rgba(13, 27, 45, .72);
+    }
+    .progress-track { flex: 1; height: 6px; overflow: hidden; border-radius: 999px; background: #1e334b; }
+    .progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--cyan), var(--lime)); transition: width .28s ease; }
+    .progress-label { color: var(--muted); font-size: .78rem; white-space: nowrap; }
+
+    .question-card { overflow: hidden; }
+    .question-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 17px 22px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .question-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .tag { padding: 4px 9px; font-size: .73rem; }
+    .tag.cyan { border-color: rgba(83, 215, 255, .26); background: var(--cyan-soft); color: var(--cyan); }
+    .tag.amber { border-color: rgba(255, 203, 102, .26); background: var(--amber-soft); color: var(--amber); }
+    .icon-button {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .icon-button:hover, .icon-button.active { border-color: rgba(255, 203, 102, .45); color: var(--amber); background: var(--amber-soft); }
+
+    .question-body { padding: 25px 26px 27px; }
+    .eyebrow { margin: 0 0 9px; color: var(--cyan); font-size: .74rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .question-en { margin: 0; font-size: clamp(1.18rem, 2vw, 1.54rem); font-weight: 720; line-height: 1.48; letter-spacing: -.018em; }
+    .question-zh {
+      margin: 14px 0 0;
+      padding-left: 14px;
+      border-left: 3px solid var(--cyan);
+      color: #c8d8e8;
+      font-size: 1rem;
+    }
+
+    .learning-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .tool-button, .secondary-button, .primary-button, .danger-button {
+      border-radius: 11px;
+      cursor: pointer;
+      transition: transform .14s ease, background .14s ease, border-color .14s ease;
+    }
+    .tool-button:active, .secondary-button:active, .primary-button:active { transform: translateY(1px); }
+    .tool-button {
+      padding: 8px 11px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.025);
+      color: var(--muted);
+      font-size: .8rem;
+    }
+    .tool-button.active { border-color: rgba(83, 215, 255, .35); background: var(--cyan-soft); color: var(--cyan); }
+
+    .helper-panel {
+      display: none;
+      margin-top: 16px;
+      padding: 15px;
+      border: 1px solid rgba(83, 215, 255, .18);
+      border-radius: 13px;
+      background: rgba(5, 18, 31, .46);
+    }
+    .helper-panel.show { display: block; animation: enter .18s ease; }
+    .helper-title { margin: 0 0 9px; color: var(--muted); font-size: .75rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+    .clause { display: grid; grid-template-columns: 28px 1fr; gap: 9px; padding: 7px 0; }
+    .clause + .clause { border-top: 1px solid var(--line-soft); }
+    .clause-number { color: var(--cyan); font-size: .77rem; font-weight: 800; }
+    .clause-en { color: #d8e4ef; }
+    .clause-zh { color: var(--muted); font-size: .86rem; }
+    .signal-note { margin: 10px 0 0; padding: 9px 11px; border-radius: 10px; background: var(--amber-soft); color: #f6d996; font-size: .84rem; }
+
+    .term-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+    .mini-term { padding: 11px 12px; border: 1px solid var(--line-soft); border-radius: 11px; background: rgba(255,255,255,.025); }
+    .mini-term strong { color: var(--lime); font-size: .87rem; }
+    .mini-term span { display: block; color: var(--muted); font-size: .8rem; }
+
+    .options { display: grid; gap: 10px; margin-top: 23px; }
+    .option {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr) 22px;
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(6, 19, 33, .4);
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      transition: .16s ease;
+    }
+    .option:hover:not(:disabled) { border-color: rgba(83, 215, 255, .48); transform: translateX(2px); background: rgba(83, 215, 255, .055); }
+    .option.selected { border-color: var(--cyan); background: var(--cyan-soft); }
+    .option.correct { border-color: var(--lime); background: var(--lime-soft); }
+    .option.wrong { border-color: var(--red); background: var(--red-soft); }
+    .option:disabled { cursor: default; }
+    .option-letter {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: .82rem;
+    }
+    .option.selected .option-letter { border-color: var(--cyan); background: var(--cyan); color: #04101a; }
+    .option.correct .option-letter { border-color: var(--lime); background: var(--lime); color: #07111f; }
+    .option.wrong .option-letter { border-color: var(--red); background: var(--red); color: #07111f; }
+    .option-en { display: block; font-size: .94rem; line-height: 1.43; }
+    .option-zh { display: block; margin-top: 3px; color: var(--muted); font-size: .82rem; line-height: 1.4; }
+    .option-mark { color: var(--lime); font-weight: 900; text-align: center; }
+
+    .answer-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .confidence { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: .78rem; }
+    .confidence-button { padding: 6px 9px; border: 1px solid var(--line); border-radius: 9px; background: transparent; color: var(--muted); cursor: pointer; }
+    .confidence-button.active { border-color: rgba(255, 203, 102, .42); background: var(--amber-soft); color: var(--amber); }
+    .primary-button { padding: 10px 18px; border: 1px solid var(--cyan); background: var(--cyan); color: #04101a; font-weight: 850; }
+    .primary-button:disabled { border-color: var(--line); background: var(--panel-3); color: #73869a; cursor: not-allowed; }
+    .secondary-button { padding: 9px 14px; border: 1px solid var(--line); background: transparent; color: #c3d1df; }
+    .secondary-button:hover { border-color: rgba(83, 215, 255, .4); background: var(--cyan-soft); }
+    .danger-button { padding: 9px 14px; border: 1px solid rgba(255,123,131,.4); background: var(--red-soft); color: var(--red); }
+
+    .explanation {
+      display: none;
+      margin-top: 19px;
+      overflow: hidden;
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      background: rgba(4, 15, 27, .48);
+    }
+    .explanation.show { display: block; animation: enter .2s ease; }
+    .result-banner { display: flex; align-items: center; gap: 9px; padding: 11px 14px; font-weight: 800; }
+    .result-banner.correct { background: var(--lime-soft); color: var(--lime); }
+    .result-banner.wrong { background: var(--red-soft); color: var(--red); }
+    .explain-content { display: grid; gap: 12px; padding: 15px; }
+    .explain-item h3 { margin: 0 0 4px; color: var(--cyan); font-size: .82rem; }
+    .explain-item p { margin: 0; color: #c5d4e3; font-size: .9rem; }
+    .memory-line { padding: 10px 12px; border-left: 3px solid var(--amber); background: var(--amber-soft); color: #f4d79a; font-size: .88rem; }
+
+    .question-footer { display: flex; justify-content: space-between; gap: 10px; padding: 15px 20px; border-top: 1px solid var(--line-soft); background: rgba(4,14,25,.3); }
+
+    .side-card { padding: 18px; }
+    .side-card h2 { margin: 0 0 14px; font-size: .88rem; }
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .metric { padding: 12px; border: 1px solid var(--line-soft); border-radius: 12px; background: rgba(255,255,255,.025); }
+    .metric-value { display: block; font-size: 1.35rem; font-weight: 850; letter-spacing: -.04em; }
+    .metric-label { color: var(--muted); font-size: .72rem; }
+
+    .ring-wrap { display: flex; align-items: center; gap: 16px; }
+    .ring {
+      --score: 0;
+      display: grid;
+      width: 84px;
+      height: 84px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(var(--cyan) calc(var(--score) * 1%), #20364f 0);
+    }
+    .ring::before { content: ""; grid-area: 1 / 1; width: 66px; height: 66px; border-radius: 50%; background: var(--panel); }
+    .ring strong { z-index: 1; grid-area: 1 / 1; font-size: 1rem; }
+    .ring-copy strong { display: block; font-size: .9rem; }
+    .ring-copy span { color: var(--muted); font-size: .76rem; }
+
+    .filter-group { display: grid; gap: 8px; }
+    .filter-group + .filter-group { margin-top: 12px; }
+    .filter-group label { color: var(--muted); font-size: .75rem; }
+    .select {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #0a1929;
+      color: var(--text);
+    }
+    .mode-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .mode-button { padding: 9px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--muted); cursor: pointer; }
+    .mode-button.active { border-color: rgba(83, 215, 255, .4); background: var(--cyan-soft); color: var(--cyan); }
+    .shortcut-list { display: grid; gap: 7px; color: var(--muted); font-size: .76rem; }
+    .shortcut-row { display: flex; justify-content: space-between; gap: 10px; }
+    kbd { min-width: 24px; padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; background: #081727; color: #b9cada; font-family: inherit; text-align: center; }
+
+    .view-header { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+    .view-header h2 { margin: 0; font-size: clamp(1.45rem, 3vw, 2rem); letter-spacing: -.035em; }
+    .view-header p { margin: 4px 0 0; color: var(--muted); }
+    .search-input {
+      width: min(340px, 100%);
+      padding: 10px 13px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #0a1929;
+      color: var(--text);
+    }
+    .review-grid, .glossary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .review-card, .term-card { padding: 17px; }
+    .review-card h3, .term-card h3 { margin: 7px 0; font-size: 1rem; }
+    .review-card p, .term-card p { margin: 0; color: var(--muted); font-size: .88rem; }
+    .review-card footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 14px; }
+    .term-card .term-cn { color: var(--cyan); font-size: .82rem; font-weight: 700; }
+    .term-card .term-example { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line-soft); font-size: .8rem; }
+
+    .empty-state { grid-column: 1 / -1; padding: 50px 24px; text-align: center; }
+    .empty-symbol { display: grid; width: 54px; height: 54px; margin: 0 auto 12px; place-items: center; border-radius: 16px; background: var(--cyan-soft); color: var(--cyan); font-size: 1.4rem; }
+    .empty-state h3 { margin: 0 0 5px; }
+    .empty-state p { margin: 0 auto 16px; max-width: 430px; color: var(--muted); }
+
+    .data-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; }
+    .data-card { padding: 22px; }
+    .data-card h3 { margin: 0 0 6px; }
+    .data-card p { margin: 0 0 17px; color: var(--muted); }
+    .button-row { display: flex; flex-wrap: wrap; gap: 9px; }
+    .privacy-note { display: flex; gap: 12px; padding: 15px; border: 1px solid rgba(184,243,107,.2); border-radius: 13px; background: var(--lime-soft); color: #d7f6b5; }
+    .privacy-note strong { display: block; }
+    .privacy-note span { color: #b7ce9e; font-size: .82rem; }
+    .file-input { display: none; }
+
+    .toast {
+      position: fixed;
+      z-index: 100;
+      right: 24px;
+      bottom: 24px;
+      max-width: calc(100vw - 48px);
+      padding: 11px 15px;
+      border: 1px solid rgba(83,215,255,.35);
+      border-radius: 11px;
+      background: #10263b;
+      box-shadow: 0 16px 50px rgba(0,0,0,.35);
+      color: var(--text);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+      transition: .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1040px) {
+      .app-shell { grid-template-columns: 78px minmax(0, 1fr); }
+      .sidebar { padding-inline: 12px; }
+      .brand { justify-content: center; padding-inline: 0; }
+      .brand-copy, .nav-label, .nav-count, .sidebar-note { display: none; }
+      .nav-button { justify-content: center; padding-inline: 8px; }
+      .workspace { padding-inline: 24px; }
+      .study-layout { grid-template-columns: minmax(0, 1fr) 260px; }
+    }
+
+    @media (max-width: 780px) {
+      .app-shell { display: block; }
+      .sidebar {
+        position: fixed;
+        z-index: 60;
+        top: auto;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: auto;
+        height: 66px;
+        padding: 8px max(10px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+        border-top: 1px solid var(--line);
+        border-right: 0;
+      }
+      .brand, .sidebar-note { display: none; }
+      .nav-list { grid-template-columns: repeat(4, 1fr); height: 100%; gap: 4px; }
+      .nav-button { flex-direction: column; justify-content: center; gap: 0; padding: 4px; font-size: .68rem; }
+      .nav-label { display: block; }
+      .nav-icon { line-height: 1.15; }
+      .workspace { padding: 0 14px 94px; }
+      .topbar { min-height: 64px; }
+      .top-actions .kbd-chip { display: none; }
+      .study-layout, .data-layout { grid-template-columns: 1fr; }
+      .side-column { grid-template-columns: repeat(2, minmax(0,1fr)); order: -1; }
+      .side-column .side-card:nth-child(3) { display: none; }
+      .view { padding-top: 18px; }
+      .question-body { padding: 21px 18px 23px; }
+      .question-head { padding-inline: 17px; }
+      .term-grid, .review-grid, .glossary-grid { grid-template-columns: 1fr; }
+      .view-header { align-items: stretch; flex-direction: column; }
+      .search-input { width: 100%; }
+    }
+
+    @media (max-width: 520px) {
+      .topbar .status-pill { display: none; }
+      .side-column { grid-template-columns: 1fr; }
+      .side-column .side-card:first-child { display: none; }
+      .question-en { font-size: 1.14rem; }
+      .question-zh { font-size: .92rem; }
+      .answer-controls { align-items: stretch; flex-direction: column; }
+      .confidence { justify-content: space-between; }
+      .primary-button { width: 100%; }
+      .question-footer button { flex: 1; }
+      .option { grid-template-columns: 30px minmax(0,1fr) 18px; gap: 9px; padding: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">C+</div>
+        <div class="brand-copy">
+          <div class="brand-name">CIPT Quiz</div>
+          <div class="brand-version">SYSTEM V1 · OFFLINE</div>
+        </div>
+      </div>
+      <nav class="nav-list" role="tablist" aria-label="功能视图">
+        <button class="nav-button" role="tab" aria-selected="true" data-view="study">
+          <span class="nav-icon" aria-hidden="true">◈</span><span class="nav-label">今日练习</span>
+        </button>
+        <button class="nav-button" role="tab" aria-selected="false" data-view="review">
+          <span class="nav-icon" aria-hidden="true">↻</span><span class="nav-label">错题复习</span><span class="nav-count" id="wrongCount">0</span>
+        </button>
+        <button class="nav-button" role="tab" aria-selected="false" data-view="glossary">
+          <span class="nav-icon" aria-hidden="true">Aa</span><span class="nav-label">术语词库</span><span class="nav-count" id="termCount">0</span>
+        </button>
+        <button class="nav-button" role="tab" aria-selected="false" data-view="data">
+          <span class="nav-icon" aria-hidden="true">⌁</span><span class="nav-label">学习数据</span>
+        </button>
+      </nav>
+      <div class="sidebar-note"><strong>数据留在本机</strong>答题记录仅写入当前浏览器，不上传任何服务器。</div>
+    </aside>
+
+    <main class="workspace" id="main">
+      <header class="topbar">
+        <div class="page-heading"><h1 id="pageTitle">今日练习</h1><p id="pageSubtitle">读懂题干，再做判断</p></div>
+        <div class="top-actions">
+          <span class="kbd-chip">按 1–4 选答案</span>
+          <span class="status-pill"><span class="status-dot"></span>离线可用</span>
+        </div>
+      </header>
+
+      <section class="view active" id="view-study" role="tabpanel">
+        <div class="study-layout">
+          <div class="main-column">
+            <div class="session-strip" aria-label="练习进度">
+              <span class="progress-label" id="progressText">第 1 / 24 题</span>
+              <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+              <span class="progress-label" id="answeredText">已答 0</span>
+            </div>
+
+            <article class="panel question-card" aria-labelledby="questionText">
+              <header class="question-head">
+                <div class="question-tags">
+                  <span class="tag cyan" id="domainTag">隐私基础</span>
+                  <span class="tag" id="difficultyTag">基础</span>
+                  <span class="tag amber" id="sourceTag">原创练习</span>
+                </div>
+                <button class="icon-button" id="favoriteButton" type="button" title="收藏本题" aria-label="收藏本题" aria-pressed="false">☆</button>
+              </header>
+              <div class="question-body">
+                <p class="eyebrow">QUESTION <span id="questionNumber">01</span></p>
+                <h2 class="question-en" id="questionText"></h2>
+                <p class="question-zh" id="questionTranslation"></p>
+
+                <div class="learning-tools" aria-label="阅读辅助">
+                  <button class="tool-button active" id="translationToggle" type="button" aria-pressed="true">中译 ON</button>
+                  <button class="tool-button" id="breakdownToggle" type="button" aria-expanded="false">长句拆解</button>
+                  <button class="tool-button" id="termsToggle" type="button" aria-expanded="false">关键词 <span id="questionTermCount"></span></button>
+                </div>
+
+                <div class="helper-panel" id="breakdownPanel">
+                  <p class="helper-title">句子骨架</p>
+                  <div id="clauseList"></div>
+                  <p class="signal-note" id="signalNote"></p>
+                </div>
+                <div class="helper-panel" id="questionTermsPanel">
+                  <p class="helper-title">本题关键词</p>
+                  <div class="term-grid" id="questionTerms"></div>
+                </div>
+
+                <div class="options" id="options" role="radiogroup" aria-label="答案选项"></div>
+
+                <div class="answer-controls">
+                  <div class="confidence" aria-label="答题把握">
+                    <span>把握：</span>
+                    <button class="confidence-button" data-confidence="guess" type="button">猜测</button>
+                    <button class="confidence-button active" data-confidence="unsure" type="button">犹豫</button>
+                    <button class="confidence-button" data-confidence="sure" type="button">确定</button>
+                  </div>
+                  <button class="primary-button" id="submitButton" type="button" disabled>提交答案</button>
+                </div>
+
+                <section class="explanation" id="explanation" aria-live="polite">
+                  <div class="result-banner" id="resultBanner"></div>
+                  <div class="explain-content">
+                    <div class="explain-item"><h3>为什么</h3><p id="explainWhy"></p></div>
+                    <div class="explain-item"><h3>排除思路</h3><p id="explainTrap"></p></div>
+                    <div class="memory-line" id="memoryLine"></div>
+                  </div>
+                </section>
+              </div>
+              <footer class="question-footer">
+                <button class="secondary-button" id="previousButton" type="button">上一题</button>
+                <button class="secondary-button" id="nextButton" type="button">下一题</button>
+              </footer>
+            </article>
+          </div>
+
+          <aside class="side-column" aria-label="学习概览">
+            <section class="panel side-card">
+              <h2>本轮表现</h2>
+              <div class="ring-wrap">
+                <div class="ring" id="accuracyRing"><strong id="accuracyValue">--</strong></div>
+                <div class="ring-copy"><strong id="accuracyCopy">开始答题</strong><span id="accuracyHint">正确率将在这里更新</span></div>
+              </div>
+              <div class="metric-grid" style="margin-top:14px">
+                <div class="metric"><strong class="metric-value" id="correctMetric">0</strong><span class="metric-label">答对</span></div>
+                <div class="metric"><strong class="metric-value" id="weakMetric">0</strong><span class="metric-label">需复习</span></div>
+              </div>
+            </section>
+
+            <section class="panel side-card">
+              <h2>练习设置</h2>
+              <div class="filter-group"><label for="domainSelect">知识域</label><select class="select" id="domainSelect"></select></div>
+              <div class="filter-group"><label>学习方式</label><div class="mode-buttons"><button class="mode-button active" data-mode="study" type="button">学习模式</button><button class="mode-button" data-mode="exam" type="button">自测模式</button></div></div>
+              <button class="secondary-button" id="shuffleButton" type="button" style="width:100%;margin-top:13px">随机换一组</button>
+            </section>
+
+            <section class="panel side-card">
+              <h2>快捷键</h2>
+              <div class="shortcut-list">
+                <div class="shortcut-row"><span>选择答案</span><span><kbd>1</kbd>–<kbd>4</kbd></span></div>
+                <div class="shortcut-row"><span>提交 / 下一题</span><kbd>Enter</kbd></div>
+                <div class="shortcut-row"><span>显示翻译</span><kbd>T</kbd></div>
+                <div class="shortcut-row"><span>收藏本题</span><kbd>F</kbd></div>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-review" role="tabpanel">
+        <div class="view-header"><div><h2>错题复习</h2><p>优先处理“答错”或“低把握”的题目。</p></div><button class="primary-button" id="startReviewButton" type="button">开始复习</button></div>
+        <div class="review-grid" id="reviewGrid"></div>
+      </section>
+
+      <section class="view" id="view-glossary" role="tabpanel">
+        <div class="view-header"><div><h2>术语词库</h2><p>用中文建立概念，再记英文表达。</p></div><input class="search-input" id="termSearch" type="search" placeholder="搜索英文或中文术语" aria-label="搜索术语"></div>
+        <div class="glossary-grid" id="glossaryGrid"></div>
+      </section>
+
+      <section class="view" id="view-data" role="tabpanel">
+        <div class="view-header"><div><h2>学习数据</h2><p>备份进度，或在另一台设备恢复。</p></div></div>
+        <div class="data-layout">
+          <section class="panel data-card">
+            <h3>本机学习档案</h3><p id="dataSummary">尚无答题记录。</p>
+            <div class="metric-grid" style="margin-bottom:18px">
+              <div class="metric"><strong class="metric-value" id="totalAnsweredMetric">0</strong><span class="metric-label">累计作答</span></div>
+              <div class="metric"><strong class="metric-value" id="favoriteMetric">0</strong><span class="metric-label">收藏题目</span></div>
+            </div>
+            <div class="button-row">
+              <button class="primary-button" id="exportButton" type="button">导出 JSON</button>
+              <button class="secondary-button" id="importButton" type="button">导入备份</button>
+              <input class="file-input" id="importFile" type="file" accept="application/json,.json">
+              <button class="danger-button" id="resetButton" type="button">清空记录</button>
+            </div>
+          </section>
+          <section class="panel data-card">
+            <h3>隐私说明</h3><p>这个单文件版本不需要账号、数据库或网络接口。</p>
+            <div class="privacy-note"><span aria-hidden="true">◉</span><div><strong>Local-first</strong><span>题目和学习数据都在浏览器中处理。清除浏览器站点数据会同时删除进度，请先导出备份。</span></div></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    'use strict';
+
+    const TERMS = {
+      "data minimization": { zh: "数据最小化", def: "只收集、使用完成明确目的所必需的数据。", example: "注册只需邮箱时，不应额外索取生日。" },
+      "purpose limitation": { zh: "目的限制", def: "数据仅用于收集时声明且相容的目的。", example: "履约地址不能默认转作广告画像。" },
+      "privacy by design": { zh: "隐私设计", def: "在系统设计早期把隐私要求嵌入架构和流程。", example: "需求评审时同步完成隐私威胁建模。" },
+      "privacy by default": { zh: "默认隐私", def: "用户不做任何设置时，也采用保护程度较高的默认值。", example: "新账户的资料默认不公开。" },
+      "threat modeling": { zh: "威胁建模", def: "系统化识别资产、攻击者、威胁路径与缓解措施。", example: "设计阶段识别越权查询与重识别风险。" },
+      "pseudonymization": { zh: "假名化", def: "用标识符替代直接身份信息；在掌握附加信息时仍可能还原或关联。", example: "以令牌替换客户编号，并分离保存映射表。" },
+      "anonymization": { zh: "匿名化", def: "以合理方式使个人不再可识别，通常要求不可逆且能抵抗关联。", example: "发布前综合采用泛化、抑制并评估重识别风险。" },
+      "tokenization": { zh: "令牌化", def: "用无业务含义的令牌替代敏感值，映射通常保存在受控令牌库。", example: "支付系统用令牌代替银行卡号。" },
+      "encryption at rest": { zh: "静态加密", def: "保护磁盘、数据库或备份中存储的数据。", example: "数据库文件和对象存储使用受管密钥加密。" },
+      "key management": { zh: "密钥管理", def: "覆盖密钥生成、存储、轮换、授权、撤销与销毁的控制。", example: "密钥与密文分离，并记录调用审计。" },
+      "least privilege": { zh: "最小权限", def: "主体仅获得完成当前任务所需的最低权限。", example: "报表服务只能读取指定视图。" },
+      "role-based access control": { zh: "基于角色的访问控制", def: "将权限授予角色，再把用户分配到角色。", example: "客服、审计员和管理员拥有不同操作集合。" },
+      "retention": { zh: "保留期限", def: "数据因业务、法律或安全需要而被保存的时间范围。", example: "达到期限后删除主库、缓存与过期备份。" },
+      "linkage attack": { zh: "关联攻击", def: "把多个数据集的准标识符组合，以推断或重识别个人。", example: "邮编、年龄和性别组合可能缩小身份范围。" },
+      "k-anonymity": { zh: "k-匿名", def: "让每条记录在选定准标识符上至少与 k-1 条记录不可区分。", example: "k=5 表示每个准标识符组合至少对应五人。" },
+      "differential privacy": { zh: "差分隐私", def: "通过受控随机噪声限制单个记录对查询结果的影响。", example: "统计发布系统为计数查询分配隐私预算。" },
+      "privacy budget": { zh: "隐私预算", def: "衡量多次差分隐私查询累计隐私损失的资源。", example: "连续查询会消耗预算，不能无限重复。" },
+      "federated learning": { zh: "联邦学习", def: "把训练留在数据所在设备或机构，只交换模型更新。", example: "移动设备本地训练后上传受保护的梯度。" },
+      "secure aggregation": { zh: "安全聚合", def: "让服务端只获得多个参与方更新的聚合结果。", example: "单个设备的模型更新不直接暴露给协调方。" },
+      "secure multiparty computation": { zh: "安全多方计算", def: "各方在不公开各自输入的前提下共同计算函数结果。", example: "两家公司计算客户交集而不交换完整名单。" },
+      "homomorphic encryption": { zh: "同态加密", def: "允许直接对密文执行特定计算，解密后得到对应明文结果。", example: "云端在不知道原始值时完成加总。" },
+      "browser fingerprinting": { zh: "浏览器指纹", def: "组合设备与浏览器特征来区分或跟踪用户。", example: "字体、屏幕尺寸与渲染特征可形成高熵标识。" },
+      "third-party cookie": { zh: "第三方 Cookie", def: "由当前访问站点之外的域设置或读取的 Cookie。", example: "跨站广告服务借此关联多个网站上的活动。" },
+      "layered notice": { zh: "分层告知", def: "先展示关键隐私信息，再允许用户展开详细内容。", example: "首层说明目的、数据类别与关键选择。" },
+      "dark pattern": { zh: "暗黑模式 / 诱导式设计", def: "通过界面设计操纵用户作出不利或非预期选择。", example: "同意按钮醒目，拒绝入口被隐藏在多层菜单。" },
+      "data inventory": { zh: "数据清单", def: "记录组织持有什么数据、在哪里、为何使用、由谁访问及流向何处。", example: "处理访问请求前先定位主库、日志和下游系统。" },
+      "telemetry": { zh: "遥测数据", def: "系统为监控、诊断或产品分析而采集的运行和使用数据。", example: "错误事件可不包含完整用户输入。" },
+      "privacy-enhancing technology": { zh: "隐私增强技术（PET）", def: "在实现数据价值的同时降低暴露、关联或重识别风险的技术。", example: "差分隐私、MPC、同态加密均属于常见 PET。" },
+      "access log": { zh: "访问日志", def: "记录谁在何时对什么数据执行了什么操作。", example: "异常批量查询可通过不可篡改日志追踪。" },
+      "data provenance": { zh: "数据血缘 / 来源追踪", def: "描述数据来源、转换过程和下游去向。", example: "删除请求可沿血缘找到派生数据。" }
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q01", domain: "隐私基础", difficulty: "基础", source: "原创练习",
+        en: "A mobile app asks for a home address even though an email address is sufficient to create an account. Which principle is most directly affected?",
+        zh: "某移动应用创建账户时，邮箱已经足够，却仍要求填写家庭住址。最直接违反了哪项原则？",
+        options: [
+          ["Purpose limitation", "目的限制"], ["Data minimization", "数据最小化"], ["Storage limitation", "存储限制"], ["Transparency", "透明度"]
+        ], correct: 1,
+        terms: ["data minimization", "purpose limitation"],
+        clauses: [["A mobile app asks for a home address", "应用要求家庭住址"], ["even though an email address is sufficient", "尽管邮箱已足够"], ["to create an account", "目的：创建账户"]],
+        signal: "even though 表示转折：已经“足够”却继续收集，是典型的数据最小化判断。",
+        why: "数据最小化关注收集范围是否超出完成任务所必需的程度。家庭住址对该注册目的并非必要。",
+        trap: "目的限制关注“拿数据做什么”；本题重点是“收了不必要的数据”，不是改变用途。",
+        memory: "记忆：问“是否必须收” → 数据最小化；问“是否换用途” → 目的限制。"
+      },
+      {
+        id: "q02", domain: "隐私工程", difficulty: "基础", source: "原创练习",
+        en: "When should a product team perform privacy threat modeling to influence the architecture at the lowest cost?",
+        zh: "产品团队应在何时开展隐私威胁建模，才能以最低成本影响系统架构？",
+        options: [["After a production incident", "生产事故之后"], ["During early design", "早期设计阶段"], ["Only before an audit", "仅在审计之前"], ["After data deletion", "数据删除之后"]], correct: 1,
+        terms: ["threat modeling", "privacy by design"],
+        clauses: [["When should a product team perform privacy threat modeling", "何时开展隐私威胁建模"], ["to influence the architecture", "目的：影响架构"], ["at the lowest cost", "条件：成本最低"]],
+        signal: "看到 influence the architecture 与 lowest cost，应想到设计越早，修改成本越低。",
+        why: "在需求和架构尚未固化时识别数据流、攻击面与滥用场景，最容易改变设计并避免返工。",
+        trap: "事故后和审计前属于被动控制，无法低成本地影响早期架构决策。",
+        memory: "Privacy by Design 不是上线前检查表，而是设计输入。"
+      },
+      {
+        id: "q03", domain: "去标识化", difficulty: "进阶", source: "原创练习",
+        en: "A dataset satisfies k-anonymity but every record in one equivalence class has the same diagnosis. What risk remains?",
+        zh: "某数据集满足 k-匿名，但一个等价类中的所有记录具有相同诊断结果。仍然存在什么风险？",
+        options: [["Transport interception", "传输拦截"], ["Attribute disclosure", "属性泄露"], ["Key exhaustion", "密钥耗尽"], ["Session fixation", "会话固定"]], correct: 1,
+        terms: ["k-anonymity", "linkage attack"],
+        clauses: [["A dataset satisfies k-anonymity", "数据集满足 k-匿名"], ["but every record in one equivalence class", "但同一等价类中的每条记录"], ["has the same diagnosis", "诊断属性完全相同"]],
+        signal: "but 后面才是考点：身份可能被隐藏，但敏感属性仍可被推断。",
+        why: "k-匿名只保证准标识符组合中至少有 k 个候选人；如果敏感属性没有多样性，攻击者仍能推断该属性。",
+        trap: "这不是传输安全或会话问题，而是发布后由数据分布导致的属性披露。",
+        memory: "k-匿名保护“你是哪一行”，不一定保护“这一组人的敏感值是什么”。"
+      },
+      {
+        id: "q04", domain: "隐私增强技术", difficulty: "进阶", source: "原创练习",
+        en: "In a differential privacy system, what should be monitored when analysts repeatedly query the same dataset?",
+        zh: "在差分隐私系统中，当分析人员反复查询同一数据集时，最应监控什么？",
+        options: [["Screen resolution", "屏幕分辨率"], ["Privacy budget consumption", "隐私预算消耗"], ["Password length", "密码长度"], ["Network latency", "网络延迟"]], correct: 1,
+        terms: ["differential privacy", "privacy budget"],
+        clauses: [["In a differential privacy system", "场景：差分隐私系统"], ["when analysts repeatedly query", "条件：分析人员反复查询"], ["the same dataset", "对象：同一数据集"]],
+        signal: "repeatedly 是关键词：多次查询会产生组合效应并累计隐私损失。",
+        why: "每次查询都会消耗一部分隐私预算；不限制累计查询可能削弱单个记录获得的保护。",
+        trap: "密码与网络指标虽重要，但不直接衡量差分隐私查询的累计风险。",
+        memory: "差分隐私不是“加一次噪声就永久安全”，查询次数也要治理。"
+      },
+      {
+        id: "q05", domain: "数据保护", difficulty: "基础", source: "原创练习",
+        en: "A company replaces customer IDs with random tokens and stores the mapping in a separate secured vault. Which technique is being used?",
+        zh: "公司用随机令牌替换客户 ID，并将映射关系存入独立的安全库。这使用了哪项技术？",
+        options: [["Tokenization", "令牌化"], ["Anonymization", "匿名化"], ["Data masking for display", "展示脱敏"], ["Differential privacy", "差分隐私"]], correct: 0,
+        terms: ["tokenization", "pseudonymization"],
+        clauses: [["replaces customer IDs with random tokens", "用随机令牌替换客户 ID"], ["and stores the mapping", "并保存映射关系"], ["in a separate secured vault", "位置：独立安全库"]],
+        signal: "mapping 是决定性线索：存在受控映射表，通常属于令牌化或假名化，而非匿名化。",
+        why: "令牌化以无业务含义的令牌代替原值，并通过受保护的映射库支持必要时还原。",
+        trap: "匿名化要求合理不可识别；保留映射意味着仍可能重新关联个人。",
+        memory: "有映射表 → 可回指 → 不是匿名化。"
+      },
+      {
+        id: "q06", domain: "数据保护", difficulty: "进阶", source: "原创练习",
+        en: "Which design most reduces the impact if an encrypted database is copied by an attacker?",
+        zh: "如果加密数据库被攻击者复制，哪种设计最能降低事件影响？",
+        options: [["Store the key beside the database", "将密钥与数据库放在一起"], ["Use one permanent key for all systems", "所有系统共用一个永久密钥"], ["Separate and rotate access-controlled keys", "分离并轮换受控密钥"], ["Rename sensitive columns", "重命名敏感字段"]], correct: 2,
+        terms: ["encryption at rest", "key management"],
+        clauses: [["Which design most reduces the impact", "哪种设计最能降低影响"], ["if an encrypted database is copied", "条件：加密数据库被复制"], ["by an attacker", "主体：攻击者"]],
+        signal: "encrypted database 已经给出加密；真正区分选项的是密钥是否与密文隔离并可撤销。",
+        why: "密钥与密文分离、限制密钥访问并定期轮换，可避免“拿到数据库就同时拿到解密能力”。",
+        trap: "永久共享密钥扩大爆炸半径；重命名字段不构成密码学保护。",
+        memory: "加密强度不仅看算法，还看密钥生命周期与隔离。"
+      },
+      {
+        id: "q07", domain: "身份与访问", difficulty: "基础", source: "原创练习",
+        en: "A support agent only needs to view the last four digits of an account number. Which control best follows least privilege?",
+        zh: "客服只需要查看账号后四位。哪项控制最符合最小权限原则？",
+        options: [["Give full database read access", "授予整个数据库只读权限"], ["Show a masked value through a restricted view", "通过受限视图显示掩码值"], ["Share an administrator account", "共享管理员账号"], ["Export the table weekly", "每周导出整张表"]], correct: 1,
+        terms: ["least privilege", "role-based access control"],
+        clauses: [["A support agent only needs", "客服仅需要"], ["to view the last four digits", "查看后四位"], ["Which control best follows least privilege", "问：最符合最小权限的控制"]],
+        signal: "only needs 与 last four digits 明确给出了最小任务范围。",
+        why: "受限视图既满足核验需求，又不暴露完整号码或无关字段。",
+        trap: "只读不等于最小权限；读取整库仍超出岗位需要。",
+        memory: "最小权限同时限制“能看什么”和“能做什么”。"
+      },
+      {
+        id: "q08", domain: "数据生命周期", difficulty: "进阶", source: "原创练习",
+        en: "A deletion workflow removes a profile from the main database but leaves searchable copies in logs and caches. What is the main weakness?",
+        zh: "删除流程从主数据库移除了个人资料，但日志和缓存中的副本仍可搜索。主要缺陷是什么？",
+        options: [["Incomplete lifecycle coverage", "生命周期覆盖不完整"], ["Weak screen authentication", "屏幕认证薄弱"], ["Insufficient bandwidth", "带宽不足"], ["Incorrect localization", "本地化错误"]], correct: 0,
+        terms: ["retention", "data provenance"],
+        clauses: [["removes a profile from the main database", "从主库删除资料"], ["but leaves searchable copies", "但留下可搜索副本"], ["in logs and caches", "位置：日志与缓存"]],
+        signal: "but 表示删除只完成了一部分；要沿数据血缘检查所有副本与派生物。",
+        why: "有效删除需要覆盖主库、索引、缓存、日志和可适用的备份策略，而不是只删除一个记录位置。",
+        trap: "题目讨论的是数据副本管理，不是认证、网络或语言设置。",
+        memory: "删除是一条数据流上的流程，不是一条 SQL。"
+      },
+      {
+        id: "q09", domain: "在线隐私", difficulty: "基础", source: "原创练习",
+        en: "A tracking domain recognizes a user across several unrelated websites. Which mechanism most directly enables this behavior?",
+        zh: "某追踪域能够在多个互不相关的网站间识别同一用户。哪种机制最直接实现这种行为？",
+        options: [["A first-party session cookie", "第一方会话 Cookie"], ["A third-party cookie", "第三方 Cookie"], ["A local page title", "本地页面标题"], ["A DNS cache entry", "DNS 缓存条目"]], correct: 1,
+        terms: ["third-party cookie", "browser fingerprinting"],
+        clauses: [["A tracking domain recognizes a user", "追踪域识别用户"], ["across several unrelated websites", "范围：多个不相关网站"], ["Which mechanism most directly enables", "问：最直接的机制"]],
+        signal: "across unrelated websites 指向跨站追踪，优先考虑第三方上下文。",
+        why: "当多个网站嵌入同一第三方资源时，该第三方可读写其 Cookie 并关联跨站活动。",
+        trap: "第一方会话 Cookie 通常局限于当前站点；浏览器指纹也可跨站，但题目问最直接的经典机制。",
+        memory: "first-party 看当前站；third-party 能跨多个嵌入站点关联。"
+      },
+      {
+        id: "q10", domain: "在线隐私", difficulty: "进阶", source: "原创练习",
+        en: "Blocking cookies does not fully prevent a site from recognizing returning devices. Which remaining technique should be assessed?",
+        zh: "阻止 Cookie 并不能完全防止网站识别再次访问的设备。还应评估哪项技术？",
+        options: [["Browser fingerprinting", "浏览器指纹"], ["Database normalization", "数据库规范化"], ["Code minification", "代码压缩"], ["Load balancing", "负载均衡"]], correct: 0,
+        terms: ["browser fingerprinting", "third-party cookie"],
+        clauses: [["Blocking cookies does not fully prevent", "阻止 Cookie 并不能完全防止"], ["a site from recognizing returning devices", "网站识别再次访问的设备"], ["Which remaining technique", "问：仍可能使用的技术"]],
+        signal: "without cookies + recognize devices 是浏览器指纹的典型表述。",
+        why: "浏览器指纹可组合字体、屏幕、语言、渲染与硬件等特征，在没有传统 Cookie 时形成高熵标识。",
+        trap: "规范化、代码压缩和负载均衡不以跨会话识别设备为目标。",
+        memory: "没有 Cookie ≠ 没有追踪；高熵设备特征也能形成标识。"
+      },
+      {
+        id: "q11", domain: "用户体验", difficulty: "基础", source: "原创练习",
+        en: "Which notice design is most helpful on a small screen while still supporting informed choices?",
+        zh: "在小屏幕上，哪种告知设计最有助于用户作出知情选择？",
+        options: [["One long legal document", "一份很长的法律文件"], ["A layered notice with key facts first", "先展示关键信息的分层告知"], ["No notice until after collection", "收集后再告知"], ["A preselected consent box", "预先勾选的同意框"]], correct: 1,
+        terms: ["layered notice", "dark pattern"],
+        clauses: [["Which notice design is most helpful", "哪种告知最有帮助"], ["on a small screen", "场景：小屏幕"], ["while still supporting informed choices", "同时支持知情选择"]],
+        signal: "small screen 要求优先级清晰；informed choices 要求关键内容不能被隐藏。",
+        why: "分层告知先呈现目的、数据类别和关键选择，再提供详细信息，兼顾可读性和完整性。",
+        trap: "篇幅长不等于更透明；预选和延迟告知都会削弱真实选择。",
+        memory: "第一层回答“收什么、为什么、我能做什么”，细节放下一层。"
+      },
+      {
+        id: "q12", domain: "用户体验", difficulty: "进阶", source: "原创练习",
+        en: "A consent screen makes “Accept all” bright and immediate but requires five steps to reject. What is the primary concern?",
+        zh: "同意页面把“全部接受”设计得醒目且一步完成，而拒绝需要五步。首要问题是什么？",
+        options: [["A dark pattern", "诱导式设计"], ["Weak encryption", "加密薄弱"], ["Data deduplication", "数据去重"], ["Poor availability", "可用性不足"]], correct: 0,
+        terms: ["dark pattern", "layered notice"],
+        clauses: [["makes Accept all bright and immediate", "让全部接受醒目且一步完成"], ["but requires five steps to reject", "但拒绝需要五步"], ["What is the primary concern", "问：首要问题"]],
+        signal: "接受与拒绝的交互成本明显不对称，说明界面在推动特定选择。",
+        why: "通过视觉权重和操作摩擦影响选择，可能使用户作出并非自由、对称或充分知情的决定。",
+        trap: "这属于交互与选择架构问题，并非密码学或系统可用性问题。",
+        memory: "判断同意界面：看信息是否对称，拒绝是否同样容易。"
+      },
+      {
+        id: "q13", domain: "隐私设计", difficulty: "基础", source: "原创练习",
+        en: "A new social profile is visible only to approved contacts unless the user changes the setting. Which principle does this demonstrate?",
+        zh: "新的社交资料默认仅对已批准联系人可见，除非用户主动更改设置。这体现了哪项原则？",
+        options: [["Privacy by default", "默认隐私"], ["Open data", "开放数据"], ["Maximum collection", "最大化收集"], ["Shared credentials", "共享凭据"]], correct: 0,
+        terms: ["privacy by default", "privacy by design"],
+        clauses: [["A new social profile is visible only", "新资料仅可见"], ["to approved contacts", "对象：已批准联系人"], ["unless the user changes the setting", "除非用户主动修改"]],
+        signal: "unless the user changes 指向“未操作时的默认状态”。",
+        why: "默认隐私要求系统在用户不采取额外行动时也提供较强保护，之后可由用户有意识地调整。",
+        trap: "Privacy by Design 范围更广；题目特指默认配置，因此应选 Privacy by Default。",
+        memory: "看见 default / unless changed，先判断 Privacy by Default。"
+      },
+      {
+        id: "q14", domain: "数据治理", difficulty: "进阶", source: "原创练习",
+        en: "Before automating access requests, which artifact is most useful for locating personal data across systems and downstream copies?",
+        zh: "在自动化数据访问请求前，哪项资料最有助于定位跨系统的个人数据及其下游副本？",
+        options: [["A data inventory and flow map", "数据清单与流向图"], ["A color style guide", "颜色规范"], ["A network speed test", "网络测速结果"], ["A release calendar", "发布日历"]], correct: 0,
+        terms: ["data inventory", "data provenance"],
+        clauses: [["Before automating access requests", "在自动化访问请求前"], ["which artifact is most useful", "哪项资料最有用"], ["for locating personal data across systems and downstream copies", "目的：定位跨系统与下游副本"]],
+        signal: "locating + across systems + downstream 指向数据清单、流向与血缘。",
+        why: "只有先知道数据位于何处、为何处理、如何流动，自动化请求才可能覆盖源系统和派生副本。",
+        trap: "发布日历与技术性能资料无法回答个人数据位置和流向问题。",
+        memory: "不能回答“数据在哪里”，就无法可靠完成访问、删除和更正。"
+      },
+      {
+        id: "q15", domain: "隐私增强技术", difficulty: "进阶", source: "原创练习",
+        en: "Two companies want to calculate the size of their shared customer group without revealing their full customer lists. Which approach best fits?",
+        zh: "两家公司希望计算共同客户群规模，但不透露各自完整客户名单。哪种方法最合适？",
+        options: [["Secure multiparty computation", "安全多方计算"], ["Public file sharing", "公开文件共享"], ["Plaintext replication", "明文复制"], ["Screen recording", "屏幕录制"]], correct: 0,
+        terms: ["secure multiparty computation", "privacy-enhancing technology"],
+        clauses: [["Two companies want to calculate", "两家公司希望计算"], ["the size of their shared customer group", "共同客户群规模"], ["without revealing their full customer lists", "限制：不公开完整名单"]],
+        signal: "共同计算 + 各方输入不公开，是安全多方计算的核心使用场景。",
+        why: "安全多方计算允许参与方在不暴露各自输入的情况下得到约定函数的结果。",
+        trap: "直接共享或复制明文会暴露超出结果所需的信息。",
+        memory: "MPC：公开结果，不公开各方原始输入。"
+      },
+      {
+        id: "q16", domain: "隐私增强技术", difficulty: "进阶", source: "原创练习",
+        en: "A cloud service performs an approved calculation on encrypted values without first decrypting them. Which technology enables this?",
+        zh: "云服务无需先解密，就能对加密值执行获准的计算。这依赖哪项技术？",
+        options: [["Homomorphic encryption", "同态加密"], ["Plain hashing", "普通哈希"], ["Role naming", "角色命名"], ["Cookie partitioning", "Cookie 分区"]], correct: 0,
+        terms: ["homomorphic encryption", "encryption at rest"],
+        clauses: [["performs an approved calculation", "执行获准计算"], ["on encrypted values", "对象：加密值"], ["without first decrypting them", "条件：无需先解密"]],
+        signal: "calculate on encrypted values 是同态加密最典型的定义线索。",
+        why: "同态加密允许对密文执行特定运算，解密运算结果后可得到对应的明文计算结果。",
+        trap: "普通哈希不可逆且不支持一般意义上的密文计算；静态加密通常使用前需要解密。",
+        memory: "密文上直接算 → Homomorphic Encryption。"
+      },
+      {
+        id: "q17", domain: "机器学习隐私", difficulty: "进阶", source: "原创练习",
+        en: "Federated learning keeps raw training data on devices, but individual model updates may still reveal information. Which added control best addresses this?",
+        zh: "联邦学习把原始训练数据留在设备端，但单个模型更新仍可能泄露信息。哪项附加控制最合适？",
+        options: [["Secure aggregation", "安全聚合"], ["Larger screen fonts", "增大屏幕字体"], ["Permanent device IDs", "永久设备 ID"], ["Public debug logs", "公开调试日志"]], correct: 0,
+        terms: ["federated learning", "secure aggregation"],
+        clauses: [["Federated learning keeps raw training data on devices", "联邦学习让原始训练数据留在设备"], ["but individual model updates may still reveal information", "但单个模型更新仍可能泄露"], ["Which added control best addresses this", "问：哪项附加控制"]],
+        signal: "but 提醒你：数据不离端不代表更新本身没有泄露风险。",
+        why: "安全聚合使协调方只看到多个参与者更新的组合结果，降低观察单个更新的风险。",
+        trap: "永久设备 ID 会增加可链接性；公开日志会进一步扩大暴露。",
+        memory: "联邦学习解决“数据在哪里训练”，安全聚合解决“谁能看到单个更新”。"
+      },
+      {
+        id: "q18", domain: "隐私工程", difficulty: "基础", source: "原创练习",
+        en: "A crash report currently includes the complete contents of a user's text field. What is the best privacy-focused redesign?",
+        zh: "崩溃报告目前包含用户文本框的完整内容。最符合隐私要求的重新设计是什么？",
+        options: [["Collect only the error code and necessary context", "仅收集错误码与必要上下文"], ["Keep all text forever", "永久保留全部文本"], ["Send the report to more teams", "将报告发送给更多团队"], ["Add the text to the filename", "把文本加入文件名"]], correct: 0,
+        terms: ["telemetry", "data minimization"],
+        clauses: [["A crash report currently includes", "崩溃报告目前包含"], ["the complete contents of a user's text field", "用户文本框的完整内容"], ["best privacy-focused redesign", "问：最符合隐私的重新设计"]],
+        signal: "complete contents 通常超出诊断所需，应先质疑采集粒度。",
+        why: "错误码、堆栈和最少必要环境信息往往足以诊断问题，无需采集可能包含敏感内容的完整输入。",
+        trap: "扩大共享和延长保留都会增加暴露面，改变文件名也不会减少数据。",
+        memory: "遥测先问：这个字段真的能帮助定位故障吗？"
+      },
+      {
+        id: "q19", domain: "隐私工程", difficulty: "进阶", source: "原创练习",
+        en: "Which automated check is most useful for preventing a mobile release from silently adding a new sensitive permission?",
+        zh: "哪种自动化检查最有助于防止移动应用发布时悄悄增加新的敏感权限？",
+        options: [["Compare permission manifests in CI", "在 CI 中比较权限清单"], ["Change the app icon", "更换应用图标"], ["Increase animation speed", "提高动画速度"], ["Compress screenshots", "压缩截图"]], correct: 0,
+        terms: ["privacy by design", "data minimization"],
+        clauses: [["Which automated check is most useful", "哪项自动检查最有用"], ["for preventing a mobile release", "目标：防止移动版本发布"], ["from silently adding a new sensitive permission", "事件：静默新增敏感权限"]],
+        signal: "automated + release 指向持续集成门禁；permission manifest 是可机器比较的证据。",
+        why: "在 CI 中把权限清单与批准基线比较，可在合并或发布前发现新增敏感能力并触发评审。",
+        trap: "界面和资源优化不会检测权限变化。",
+        memory: "把隐私要求变成可自动失败的发布门禁。"
+      },
+      {
+        id: "q20", domain: "身份与访问", difficulty: "进阶", source: "原创练习",
+        en: "An administrator investigates unusual bulk access to customer records. Which evidence is most useful?",
+        zh: "管理员调查对客户记录的异常批量访问。哪类证据最有用？",
+        options: [["Tamper-resistant access logs", "防篡改访问日志"], ["A marketing slogan", "营销口号"], ["The office seating plan", "办公室座位图"], ["A generic error page", "通用错误页"]], correct: 0,
+        terms: ["access log", "least privilege"],
+        clauses: [["An administrator investigates", "管理员正在调查"], ["unusual bulk access", "异常批量访问"], ["to customer records", "对象：客户记录"]],
+        signal: "investigates 要求可追溯证据，核心问题是 who / when / what / action。",
+        why: "可靠的访问日志能关联主体、时间、对象、操作和结果，并应防止被被调查主体轻易修改。",
+        trap: "一般错误信息缺少可归因的事件细节，无法重建访问路径。",
+        memory: "审计日志要能回答：谁、何时、对什么、做了什么、结果如何。"
+      },
+      {
+        id: "q21", domain: "去标识化", difficulty: "基础", source: "原创练习",
+        en: "Why is replacing names with stable customer numbers usually not sufficient to claim that a dataset is anonymous?",
+        zh: "为什么仅用稳定客户编号替换姓名，通常不足以宣称数据集已经匿名？",
+        options: [["The numbers may remain linkable to people", "编号仍可能与个人关联"], ["Numbers cannot be stored", "数字无法存储"], ["Anonymous data must be printed", "匿名数据必须打印"], ["Encryption forbids identifiers", "加密禁止使用标识符"]], correct: 0,
+        terms: ["pseudonymization", "anonymization", "linkage attack"],
+        clauses: [["replacing names with stable customer numbers", "用稳定客户编号替换姓名"], ["usually not sufficient", "通常并不足够"], ["to claim that a dataset is anonymous", "目标：宣称数据匿名"]],
+        signal: "stable numbers 表示可持续链接；若存在映射或外部数据，仍可能回到个人。",
+        why: "稳定编号通常只是直接标识符的替代物，仍支持跨记录关联，也可能通过映射表或其他数据重识别。",
+        trap: "匿名与存储介质无关；使用标识符也不由加密技术一概禁止。",
+        memory: "去掉姓名只是第一步；可链接性与可重识别性才是关键。"
+      },
+      {
+        id: "q22", domain: "数据生命周期", difficulty: "基础", source: "原创练习",
+        en: "Which rule is most appropriate for diagnostic logs that contain user identifiers?",
+        zh: "对于包含用户标识符的诊断日志，哪项规则最合适？",
+        options: [["Keep them indefinitely by default", "默认永久保留"], ["Define a justified retention period and deletion process", "定义合理保留期限和删除流程"], ["Allow unrestricted employee access", "允许员工无限制访问"], ["Copy them to personal devices", "复制到个人设备"]], correct: 1,
+        terms: ["retention", "access log"],
+        clauses: [["Which rule is most appropriate", "哪项规则最合适"], ["for diagnostic logs", "对象：诊断日志"], ["that contain user identifiers", "特点：含用户标识符"]],
+        signal: "日志也是个人数据载体；不能因为用于诊断就跳过期限和访问控制。",
+        why: "保留时间应与诊断、安全、法律等明确需求相匹配，到期后通过可验证流程删除。",
+        trap: "永久保存和无限制访问都会放大数据暴露窗口。",
+        memory: "日志不是隐私治理的例外。"
+      },
+      {
+        id: "q23", domain: "隐私设计", difficulty: "进阶", source: "原创练习",
+        en: "An IoT device can detect a wake word locally but currently streams continuous room audio to the cloud. Which change most reduces privacy risk?",
+        zh: "某 IoT 设备可以在本地检测唤醒词，却持续把房间音频传到云端。哪项改动最能降低隐私风险？",
+        options: [["Process locally and transmit only after activation", "本地处理，仅激活后传输"], ["Use a brighter status light only", "只使用更亮的状态灯"], ["Store every recording longer", "延长所有录音保存时间"], ["Add more cloud replicas", "增加云端副本"]], correct: 0,
+        terms: ["privacy by design", "data minimization"],
+        clauses: [["can detect a wake word locally", "能够本地检测唤醒词"], ["but currently streams continuous room audio", "但当前持续传输房间音频"], ["Which change most reduces privacy risk", "问：最能降低风险的改动"]],
+        signal: "locally 能完成第一步，就没有必要把激活前的全部原始音频送到云端。",
+        why: "本地检测减少了采集、传输和云端暴露的数据量，仅在明确激活后处理必要片段。",
+        trap: "指示灯改善透明度但不减少持续采集；延长保留和增加副本会扩大风险。",
+        memory: "能在端侧完成，就先避免把原始数据送出设备。"
+      },
+      {
+        id: "q24", domain: "数据治理", difficulty: "进阶", source: "原创练习",
+        en: "A team wants to reuse location data collected for navigation to build unrelated advertising profiles. What should be evaluated first?",
+        zh: "团队想把为导航而收集的位置数据用于建立无关的广告画像。首先应评估什么？",
+        options: [["Whether the new use is compatible with the stated purpose", "新用途是否与已声明目的相容"], ["Whether the logo needs redesign", "是否需要重做标志"], ["Whether the database has spare disk space", "数据库是否有剩余空间"], ["Whether ads load faster", "广告是否加载更快"]], correct: 0,
+        terms: ["purpose limitation", "data inventory"],
+        clauses: [["reuse location data", "重新使用位置数据"], ["collected for navigation", "原收集目的：导航"], ["to build unrelated advertising profiles", "新目的：无关广告画像"]],
+        signal: "for navigation 与 unrelated advertising 构成目的变化。",
+        why: "在复用数据前，应判断新用途与原始告知和收集目的是否相容，并评估所需的法律与产品控制。",
+        trap: "技术容量和商业性能不能替代对目的相容性的判断。",
+        memory: "同一份数据换用途，先过 Purpose Limitation。"
+      }
+    ];
+
+    const STORAGE_KEY = 'cipt-quiz-v1-state';
+    const initialState = { answers: {}, wrong: [], favorites: [], currentId: QUESTIONS[0].id, confidence: 'unsure', mode: 'study', domain: '全部知识域', order: QUESTIONS.map(q => q.id) };
+    let state = loadState();
+    let currentPool = [];
+    let selectedOption = null;
+    let submitted = false;
+    let showTranslation = state.mode !== 'exam';
+    let toastTimer;
+
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => [...document.querySelectorAll(selector)];
+    const escapeHtml = value => String(value).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return { ...initialState, ...saved, answers: saved.answers || {}, wrong: saved.wrong || [], favorites: saved.favorites || [], order: Array.isArray(saved.order) ? saved.order : initialState.order };
+      } catch (_) { return { ...initialState, answers: {}, wrong: [], favorites: [], order: [...initialState.order] }; }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateStats();
+    }
+
+    function buildPool() {
+      const validIds = new Set(QUESTIONS.map(q => q.id));
+      const ordered = state.order.filter(id => validIds.has(id)).map(id => QUESTIONS.find(q => q.id === id));
+      QUESTIONS.forEach(q => { if (!ordered.some(item => item.id === q.id)) ordered.push(q); });
+      currentPool = state.domain === '全部知识域' ? ordered : ordered.filter(q => q.domain === state.domain);
+      if (!currentPool.length) currentPool = ordered;
+      if (!currentPool.some(q => q.id === state.currentId)) state.currentId = currentPool[0].id;
+    }
+
+    function currentQuestion() { return currentPool.find(q => q.id === state.currentId) || currentPool[0]; }
+
+    function renderQuestion() {
+      buildPool();
+      const q = currentQuestion();
+      const saved = state.answers[q.id];
+      selectedOption = saved ? saved.selected : null;
+      submitted = Boolean(saved);
+      state.currentId = q.id;
+      $('#domainTag').textContent = q.domain;
+      $('#difficultyTag').textContent = q.difficulty;
+      $('#sourceTag').textContent = q.source;
+      $('#questionNumber').textContent = String(currentPool.indexOf(q) + 1).padStart(2, '0');
+      $('#questionText').textContent = q.en;
+      $('#questionTranslation').textContent = q.zh;
+      $('#questionTermCount').textContent = q.terms.length;
+      $('#signalNote').textContent = q.signal;
+      $('#favoriteButton').classList.toggle('active', state.favorites.includes(q.id));
+      $('#favoriteButton').textContent = state.favorites.includes(q.id) ? '★' : '☆';
+      $('#favoriteButton').setAttribute('aria-pressed', String(state.favorites.includes(q.id)));
+      $('#favoriteButton').setAttribute('aria-label', state.favorites.includes(q.id) ? '取消收藏本题' : '收藏本题');
+
+      $('#clauseList').innerHTML = q.clauses.map((part, i) => `<div class="clause"><span class="clause-number">${String(i+1).padStart(2,'0')}</span><div><div class="clause-en">${escapeHtml(part[0])}</div><div class="clause-zh">${escapeHtml(part[1])}</div></div></div>`).join('');
+      $('#questionTerms').innerHTML = q.terms.map(key => `<div class="mini-term"><strong>${escapeHtml(key)}</strong><span>${escapeHtml(TERMS[key].zh)} · ${escapeHtml(TERMS[key].def)}</span></div>`).join('');
+
+      $('#options').innerHTML = q.options.map((option, index) => {
+        const isSelected = selectedOption === index;
+        const correct = submitted && index === q.correct;
+        const wrong = submitted && isSelected && index !== q.correct;
+        const classes = ['option', isSelected ? 'selected' : '', correct ? 'correct' : '', wrong ? 'wrong' : ''].filter(Boolean).join(' ');
+        const mark = correct ? '✓' : wrong ? '×' : '';
+        return `<button class="${classes}" type="button" role="radio" aria-checked="${isSelected}" data-option="${index}" ${submitted ? 'disabled' : ''}><span class="option-letter">${String.fromCharCode(65+index)}</span><span><span class="option-en">${escapeHtml(option[0])}</span><span class="option-zh">${escapeHtml(option[1])}</span></span><span class="option-mark">${mark}</span></button>`;
+      }).join('');
+
+      $$('.option').forEach(button => button.addEventListener('click', () => chooseOption(Number(button.dataset.option))));
+      $('#submitButton').disabled = selectedOption === null || submitted;
+      $('#submitButton').textContent = submitted ? '已提交' : '提交答案';
+      $('#explanation').classList.toggle('show', submitted);
+      if (submitted) renderExplanation(q, saved);
+
+      setTranslation(showTranslation);
+      $('#breakdownPanel').classList.remove('show');
+      $('#questionTermsPanel').classList.remove('show');
+      $('#breakdownToggle').classList.remove('active');
+      $('#termsToggle').classList.remove('active');
+      $('#breakdownToggle').setAttribute('aria-expanded', 'false');
+      $('#termsToggle').setAttribute('aria-expanded', 'false');
+      $$('.confidence-button').forEach(btn => btn.classList.toggle('active', btn.dataset.confidence === (saved?.confidence || state.confidence)));
+
+      const index = currentPool.indexOf(q);
+      $('#progressText').textContent = `第 ${index + 1} / ${currentPool.length} 题`;
+      $('#progressFill').style.width = `${((index + 1) / currentPool.length) * 100}%`;
+      $('#answeredText').textContent = `已答 ${currentPool.filter(item => state.answers[item.id]).length}`;
+      $('#previousButton').disabled = currentPool.length <= 1;
+      $('#nextButton').textContent = index === currentPool.length - 1 ? '回到第 1 题' : '下一题';
+      saveState();
+    }
+
+    function chooseOption(index) {
+      if (submitted) return;
+      selectedOption = index;
+      $$('.option').forEach((button, i) => {
+        button.classList.toggle('selected', i === index);
+        button.setAttribute('aria-checked', String(i === index));
+      });
+      $('#submitButton').disabled = false;
+    }
+
+    function submitAnswer() {
+      if (selectedOption === null || submitted) return;
+      const q = currentQuestion();
+      const confidence = $('.confidence-button.active')?.dataset.confidence || 'unsure';
+      const correct = selectedOption === q.correct;
+      state.answers[q.id] = { selected: selectedOption, correct, confidence, answeredAt: new Date().toISOString() };
+      if (!correct || confidence === 'guess') {
+        if (!state.wrong.includes(q.id)) state.wrong.push(q.id);
+      } else {
+        state.wrong = state.wrong.filter(id => id !== q.id);
+      }
+      submitted = true;
+      saveState();
+      renderQuestion();
+      setTimeout(() => $('#explanation').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 40);
+    }
+
+    function renderExplanation(q, saved) {
+      const correct = saved?.selected === q.correct;
+      const answerLetter = String.fromCharCode(65 + q.correct);
+      $('#resultBanner').className = `result-banner ${correct ? 'correct' : 'wrong'}`;
+      $('#resultBanner').textContent = correct ? `✓ 回答正确 · 答案 ${answerLetter}` : `× 回答错误 · 正确答案 ${answerLetter}`;
+      $('#explainWhy').textContent = q.why;
+      $('#explainTrap').textContent = q.trap;
+      $('#memoryLine').textContent = q.memory;
+    }
+
+    function setTranslation(visible) {
+      showTranslation = visible;
+      $('#questionTranslation').hidden = !visible;
+      $$('.option-zh').forEach(el => el.hidden = !visible);
+      $('#translationToggle').classList.toggle('active', visible);
+      $('#translationToggle').textContent = `中译 ${visible ? 'ON' : 'OFF'}`;
+      $('#translationToggle').setAttribute('aria-pressed', String(visible));
+    }
+
+    function moveQuestion(step) {
+      const q = currentQuestion();
+      const index = currentPool.indexOf(q);
+      const nextIndex = (index + step + currentPool.length) % currentPool.length;
+      state.currentId = currentPool[nextIndex].id;
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleFavorite() {
+      const id = currentQuestion().id;
+      state.favorites = state.favorites.includes(id) ? state.favorites.filter(item => item !== id) : [...state.favorites, id];
+      saveState();
+      renderQuestion();
+      notify(state.favorites.includes(id) ? '已加入收藏' : '已取消收藏');
+    }
+
+    function updateStats() {
+      const answers = Object.values(state.answers);
+      const correct = answers.filter(a => a.correct).length;
+      const accuracy = answers.length ? Math.round(correct / answers.length * 100) : 0;
+      $('#accuracyRing').style.setProperty('--score', accuracy);
+      $('#accuracyValue').textContent = answers.length ? `${accuracy}%` : '--';
+      $('#accuracyCopy').textContent = answers.length ? (accuracy >= 80 ? '状态不错' : accuracy >= 60 ? '继续巩固' : '先理解考点') : '开始答题';
+      $('#accuracyHint').textContent = answers.length ? `累计完成 ${answers.length} 道` : '正确率将在这里更新';
+      $('#correctMetric').textContent = correct;
+      $('#weakMetric').textContent = state.wrong.length;
+      $('#wrongCount').textContent = state.wrong.length;
+      $('#termCount').textContent = Object.keys(TERMS).length;
+      $('#totalAnsweredMetric').textContent = answers.length;
+      $('#favoriteMetric').textContent = state.favorites.length;
+      $('#dataSummary').textContent = answers.length ? `已完成 ${answers.length} 道题，正确 ${correct} 道，当前正确率 ${accuracy}%。` : '尚无答题记录。';
+    }
+
+    function renderReview() {
+      const ids = [...new Set([...state.wrong, ...state.favorites])];
+      const items = ids.map(id => QUESTIONS.find(q => q.id === id)).filter(Boolean);
+      $('#startReviewButton').disabled = !items.length;
+      if (!items.length) {
+        $('#reviewGrid').innerHTML = `<div class="panel empty-state"><div class="empty-symbol">✓</div><h3>暂时没有待复习题目</h3><p>答错、低把握或已收藏的题目会出现在这里。</p><button class="secondary-button" type="button" data-go-study>去练习</button></div>`;
+        $('[data-go-study]').addEventListener('click', () => switchView('study'));
+        return;
+      }
+      $('#reviewGrid').innerHTML = items.map(q => {
+        const reasons = [state.wrong.includes(q.id) ? '需复习' : '', state.favorites.includes(q.id) ? '已收藏' : ''].filter(Boolean).join(' · ');
+        return `<article class="panel review-card"><span class="tag cyan">${escapeHtml(q.domain)}</span><h3>${escapeHtml(q.en)}</h3><p>${escapeHtml(q.zh)}</p><footer><span class="tag amber">${escapeHtml(reasons)}</span><button class="secondary-button" type="button" data-review-id="${q.id}">练这道</button></footer></article>`;
+      }).join('');
+      $$('[data-review-id]').forEach(button => button.addEventListener('click', () => openQuestion(button.dataset.reviewId)));
+    }
+
+    function renderGlossary(query = '') {
+      const normalized = query.trim().toLowerCase();
+      const entries = Object.entries(TERMS).filter(([key, value]) => !normalized || `${key} ${value.zh} ${value.def}`.toLowerCase().includes(normalized));
+      $('#glossaryGrid').innerHTML = entries.length ? entries.map(([key, value]) => `<article class="panel term-card"><span class="term-cn">${escapeHtml(value.zh)}</span><h3>${escapeHtml(key)}</h3><p>${escapeHtml(value.def)}</p><p class="term-example">例：${escapeHtml(value.example)}</p></article>`).join('') : `<div class="panel empty-state"><div class="empty-symbol">Aa</div><h3>没有匹配的术语</h3><p>试试搜索“加密”“privacy”或“数据”。</p></div>`;
+    }
+
+    function openQuestion(id) {
+      state.domain = '全部知识域';
+      $('#domainSelect').value = state.domain;
+      state.currentId = id;
+      switchView('study');
+      renderQuestion();
+    }
+
+    function switchView(name) {
+      $$('.view').forEach(view => view.classList.toggle('active', view.id === `view-${name}`));
+      $$('.nav-button').forEach(button => button.setAttribute('aria-selected', String(button.dataset.view === name)));
+      const meta = {
+        study: ['今日练习', '读懂题干，再做判断'],
+        review: ['错题复习', '集中处理薄弱项'],
+        glossary: ['术语词库', '中英概念快速检索'],
+        data: ['学习数据', '进度备份与隐私设置']
+      }[name];
+      $('#pageTitle').textContent = meta[0];
+      $('#pageSubtitle').textContent = meta[1];
+      if (name === 'review') renderReview();
+      if (name === 'glossary') renderGlossary($('#termSearch').value);
+      if (name === 'data') updateStats();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function shuffleQuestions() {
+      const order = QUESTIONS.map(q => q.id);
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      state.order = order;
+      buildPool();
+      state.currentId = currentPool[0].id;
+      saveState();
+      renderQuestion();
+      notify('题目顺序已随机调整');
+    }
+
+    function exportState() {
+      const data = { app: 'CIPT Quiz System V1', exportedAt: new Date().toISOString(), state };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `cipt-quiz-backup-${new Date().toISOString().slice(0,10)}.json`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      notify('学习数据已导出');
+    }
+
+    function importState(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          const incoming = parsed.state || parsed;
+          if (!incoming || typeof incoming !== 'object' || !incoming.answers) throw new Error('invalid');
+          state = { ...initialState, ...incoming, answers: incoming.answers || {}, wrong: incoming.wrong || [], favorites: incoming.favorites || [], order: incoming.order || initialState.order };
+          saveState();
+          buildPool();
+          renderQuestion();
+          renderReview();
+          notify('学习数据已恢复');
+        } catch (_) { notify('导入失败：文件格式不正确'); }
+        $('#importFile').value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    function resetState() {
+      if (!confirm('确定清空所有答题记录、错题和收藏吗？此操作无法撤销。')) return;
+      state = { ...initialState, answers: {}, wrong: [], favorites: [], order: [...initialState.order] };
+      saveState();
+      renderQuestion();
+      renderReview();
+      notify('学习记录已清空');
+    }
+
+    function notify(message) {
+      clearTimeout(toastTimer);
+      $('#toast').textContent = message;
+      $('#toast').classList.add('show');
+      toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 2200);
+    }
+
+    function init() {
+      const domains = ['全部知识域', ...new Set(QUESTIONS.map(q => q.domain))];
+      $('#domainSelect').innerHTML = domains.map(domain => `<option value="${escapeHtml(domain)}">${escapeHtml(domain)}</option>`).join('');
+      $('#domainSelect').value = state.domain;
+      $$('.mode-button').forEach(button => button.classList.toggle('active', button.dataset.mode === state.mode));
+      buildPool();
+      renderQuestion();
+      renderGlossary();
+      updateStats();
+
+      $$('.nav-button').forEach(button => button.addEventListener('click', () => switchView(button.dataset.view)));
+      $('#translationToggle').addEventListener('click', () => setTranslation(!showTranslation));
+      $('#breakdownToggle').addEventListener('click', () => {
+        const open = !$('#breakdownPanel').classList.contains('show');
+        $('#breakdownPanel').classList.toggle('show', open);
+        $('#breakdownToggle').classList.toggle('active', open);
+        $('#breakdownToggle').setAttribute('aria-expanded', String(open));
+      });
+      $('#termsToggle').addEventListener('click', () => {
+        const open = !$('#questionTermsPanel').classList.contains('show');
+        $('#questionTermsPanel').classList.toggle('show', open);
+        $('#termsToggle').classList.toggle('active', open);
+        $('#termsToggle').setAttribute('aria-expanded', String(open));
+      });
+      $('#favoriteButton').addEventListener('click', toggleFavorite);
+      $('#submitButton').addEventListener('click', submitAnswer);
+      $('#previousButton').addEventListener('click', () => moveQuestion(-1));
+      $('#nextButton').addEventListener('click', () => moveQuestion(1));
+      $$('.confidence-button').forEach(button => button.addEventListener('click', () => {
+        if (submitted) return;
+        state.confidence = button.dataset.confidence;
+        $$('.confidence-button').forEach(item => item.classList.toggle('active', item === button));
+      }));
+      $('#domainSelect').addEventListener('change', event => {
+        state.domain = event.target.value;
+        buildPool();
+        state.currentId = currentPool[0].id;
+        saveState();
+        renderQuestion();
+      });
+      $$('.mode-button').forEach(button => button.addEventListener('click', () => {
+        state.mode = button.dataset.mode;
+        $$('.mode-button').forEach(item => item.classList.toggle('active', item === button));
+        setTranslation(state.mode === 'study');
+        saveState();
+        notify(state.mode === 'study' ? '学习模式：默认显示中译' : '自测模式：默认隐藏中译');
+      }));
+      $('#shuffleButton').addEventListener('click', shuffleQuestions);
+      $('#startReviewButton').addEventListener('click', () => {
+        const ids = [...new Set([...state.wrong, ...state.favorites])];
+        if (!ids.length) return;
+        state.order = [...ids, ...QUESTIONS.map(q => q.id).filter(id => !ids.includes(id))];
+        state.domain = '全部知识域';
+        $('#domainSelect').value = state.domain;
+        state.currentId = ids[0];
+        switchView('study');
+        renderQuestion();
+      });
+      $('#termSearch').addEventListener('input', event => renderGlossary(event.target.value));
+      $('#exportButton').addEventListener('click', exportState);
+      $('#importButton').addEventListener('click', () => $('#importFile').click());
+      $('#importFile').addEventListener('change', event => importState(event.target.files[0]));
+      $('#resetButton').addEventListener('click', resetState);
+
+      document.addEventListener('keydown', event => {
+        if (!$('#view-study').classList.contains('active') || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+        if (/^[1-4]$/.test(event.key)) chooseOption(Number(event.key) - 1);
+        if (event.key.toLowerCase() === 't') setTranslation(!showTranslation);
+        if (event.key.toLowerCase() === 'f') toggleFavorite();
+        if (event.key === 'Enter') { event.preventDefault(); submitted ? moveQuestion(1) : submitAnswer(); }
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
